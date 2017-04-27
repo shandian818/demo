@@ -1,5 +1,5 @@
 demo    项目目录
-├─framework  框架目录
+├─likephp  框架目录
 ├─runtime  运行时目录（可写）
 ├─public  web目录（web访问根目录）
 │  │  ├─index.php   项目入口文件

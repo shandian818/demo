@@ -8,4 +8,7 @@
  * Time: 11:57
  */
 
-namespace framework;
+namespace likephp;
+
+require_once 'init.php';
+\likephp\core\App::run();
