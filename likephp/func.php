@@ -36,6 +36,7 @@ function clog($val, $is_repeat = false)
 	if (is_array($val) || is_object($val)) {
 		$string .= "console.log(" . json_encode($val) . ");\n";
 	} else {
+		$val = is_bool($val) ? ($val ? "true" : "false") : $val;
 		$string .= "console.log('" . $val . "');\n";
 	}
 	$string .= $is_repeat ? "console.log('%c" . $repeat . "结束" . $repeat . "','color:#fff;background-color: #000;');" : "";

@@ -13,9 +13,19 @@ namespace likephp\core;
 
 class Route
 {
-	public function test()
+
+
+	function __construct()
 	{
-		echo __CLASS__ . __FUNCTION__;
-		clog('我是来测试的');
+
+		if(isset($_SERVER['REQUEST_URI'])&&$_SERVER['REQUEST_URI']!='/'){
+			$uri = $_SERVER['REQUEST_URI'];
+			$uri_array = explode('/',trim($uri,'/'));
+			if(isset($uri_array[0])){
+
+			}
+		}
 	}
 }
+
+

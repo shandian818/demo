@@ -15,17 +15,14 @@ define("APP_PATH", __DIR__ . "/../apps/");
 require_once __DIR__ . "/../likephp/start.php";
 
 //
-$route = new \likephp\core\Route();
-$route->test();
 
-$a = [
-	["a" => "大叔都", "b" => "a安杀毒"],
-	["a" => "大叔as都", "b" => "a安杀毒"],
-	["a" => "大ds叔都", "b" => "a安ds杀毒"],
-];
+$a = \likephp\core\Request::isGet();
+
+
+dump($_SERVER);
 dump($a);
 
+clog($_SERVER);
 clog($a);
-
-
-clog('Hello console!');
+$req = \likephp\core\Request::getInstance();
+clog($req::domain());
