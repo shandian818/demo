@@ -13,8 +13,9 @@ namespace likephp\core;
 
 class Route
 {
-	public function test(){
-		echo __CLASS__.__FUNCTION__;
+	public function test()
+	{
+		echo __CLASS__ . __FUNCTION__;
 		clog('我是来测试的');
 	}
 }

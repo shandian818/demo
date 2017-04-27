@@ -18,6 +18,6 @@ class App
 		require_once 'loader.php';
 		$loader = new \likephp\core\Loader();
 		$loader->register();
-		$loader->addNamespace('likephp',LIKE_PATH);
+		$loader->addNamespace('likephp', LIKE_PATH);
 	}
 }
