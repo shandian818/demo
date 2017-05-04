@@ -16,16 +16,53 @@ require_once __DIR__ . "/../likephp/boot.php";
 
 //
 
-$a = \likephp\core\Request::isGet();
+//$a = \likephp\core\Request::isGet();
+//
+//
+//dump($_SERVER);
+//dump($a);
+//
+//clog($_SERVER);
+//clog($a);
+//$req = \likephp\core\Request::getInstance();
+//clog($req::domain(false,true));
+//
+//$index = new \apps\index\ctrl\Index();
+//$index->index();
 
+$o = new stdClass();
+$o->a = 'dsad';
+$o->ab = 123;
+$o->abc = false;
+$test = [
+	'a' => 1,
+	'b' => [
+		'c' => 2,
+		'd' => [
+			'e' => 3,
+			'f' => [
+				'g' => 4,
+				'i' => $o,
+				'j' => true,
+				'k' => 5.6654,
+				'l' => 'true',
+				"m" => '我是来测试的',
+				'h' => [
+					'aa' => 'asd',
+					'bb' => 'dsadasd'
+				]
+			]
+		]
+	]
+];
+\likephp\core\Config::set($test);
+$data = \likephp\core\Config::get();
+clog($data);
+\likephp\core\Config::set('b.c', '修改1111');
+$data = \likephp\core\Config::get();
+clog($data);
+\likephp\core\Config::set('b.d.f.h.bb', '修改222');
+$data = \likephp\core\Config::get();
+clog($data);
 
-dump($_SERVER);
-dump($a);
-
-clog($_SERVER);
-clog($a);
-$req = \likephp\core\Request::getInstance();
-clog($req::domain(false,true));
-
-$index = new \apps\index\ctrl\Index();
-$index->index();
+echo json_encode($data,1);
