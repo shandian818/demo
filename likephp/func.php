@@ -8,7 +8,6 @@
  * Time: 11:49
  */
 
-
 /**
  * 在控制台打印结果
  * User: jiangxijun
@@ -88,4 +87,13 @@ function dump(&$var, $var_name = NULL, $indent = NULL, $reference = NULL)
 		$var = $var[$keyvar];
 	}
 	echo "</div>";
+}
+
+
+function cdump($data, $level = 0)
+{
+	$string = '';
+	$_space = ' ';
+
+	return $string;
 }
