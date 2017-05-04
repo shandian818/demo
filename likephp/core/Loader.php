@@ -71,9 +71,6 @@ class Loader
 			$file = $base_dir
 				. str_replace('\\', DIRECTORY_SEPARATOR, $relative_class)
 				. '.php';
-			$file = $base_dir
-				. str_replace('\\', '/', $relative_class)
-				. '.php';
 
 			if ($this->requireFile($file)) {
 

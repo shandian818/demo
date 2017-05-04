@@ -17,12 +17,14 @@ class Request
 	static private $_method;
 	static private $_scheme;
 	static private $_domain;
+	static private $_port;
 
 	function __construct()
 	{
 		self::$_method = strtoupper($_SERVER['REQUEST_METHOD']);
-		self::$_scheme = $_SERVER['REQUEST_SCHEME'];
+		self::$_scheme = empty($_SERVER['HTTP_X_CLIENT_PROTO']) ? 'http' : $_SERVER['HTTP_X_CLIENT_PROTO'];
 		self::$_domain = $_SERVER['SERVER_NAME'];
+		self::$_port = $_SERVER['SERVER_PORT'];
 
 	}
 
@@ -65,8 +67,25 @@ class Request
 		return self::$_method == 'GET';
 	}
 
-	static public function domain($only = false)
+	/**
+	 * 获取完整域名
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param bool $only
+	 * @param bool $port
+	 * @return string
+	 */
+	static public function domain($only = false, $port = true)
 	{
-		return $only===false ? self::$_scheme . '://' . self::$_domain : self::$_domain;
+		$domain = '';
+		$domain .= $only === false ? self::$_scheme . '://' . self::$_domain : self::$_domain;
+		$domain .= $port && self::$_port != 80 ? ':' . self::$_port : '';
+		return $domain;
+	}
+
+	static public function pathinfo()
+	{
+
 	}
 }

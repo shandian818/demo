@@ -17,4 +17,4 @@ define("ROOT_PATH", realpath(dirname(APP_PATH)) . DS);
 defined('LIKE_PATH') or define("LIKE_PATH", realpath(__DIR__) . DS);
 defined('RUNTIME_PATH') or define("RUNTIME_PATH", realpath(ROOT_PATH . 'runtime') . DS);
 require_once 'func.php';
-require_once LIKE_PATH . '/core/app.php';
+require_once LIKE_PATH . '/core/App.php';

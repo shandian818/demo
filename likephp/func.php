@@ -34,10 +34,10 @@ function clog($val, $is_repeat = false)
 	$string .= $is_repeat ? "console.log('%c" . $repeat . "开始" . $repeat . "','color:#fff;background-color: #000;');\n" : "";
 	$string .= "console.log('%cfile:" . addslashes($debug[0]['file']) . "|line:" . $debug[0]['line'] . "|time:" . microtime(true) . "|mem:" . memory_get_usage() . "','color:red');\n";
 	if (is_array($val) || is_object($val)) {
-		$string .= "console.log(" . json_encode($val) . ");\n";
+		$string .= "console.debug(" . json_encode($val) . ");\n";
 	} else {
 		$val = is_bool($val) ? ($val ? "true" : "false") : $val;
-		$string .= "console.log('" . $val . "');\n";
+		$string .= "console.info('" . $val . "');\n";
 	}
 	$string .= $is_repeat ? "console.log('%c" . $repeat . "结束" . $repeat . "','color:#fff;background-color: #000;');" : "";
 	$string .= "</script>";
