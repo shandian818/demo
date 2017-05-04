@@ -49,6 +49,8 @@ $test = [
 				"m" => '我是来测试的',
 				'h' => [
 					'aa' => 'asd',
+					'aaasd' => null,
+					'aaassssd' => '',
 					'bb' => 'dsadasd'
 				]
 			]
@@ -63,6 +65,8 @@ $data = \likephp\core\Config::get();
 clog($data);
 \likephp\core\Config::set('b.d.f.h.bb', '修改222');
 $data = \likephp\core\Config::get();
-clog($data);
+var_dump('asd');
+cdump('asd');
+dump($data);
 
-echo json_encode($data,1);
+//echo json_encode($data,1);

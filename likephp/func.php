@@ -90,10 +90,18 @@ function dump(&$var, $var_name = NULL, $indent = NULL, $reference = NULL)
 }
 
 
-function cdump($data, $level = 0)
+function cdump($data)
 {
-	$string = '';
-	$_space = ' ';
+	echo _cdump($data);
+}
 
+function _cdump($data, $level = 0){
+	$string = '';
+	$space = ' ';
+	if(is_null($data)){
+		$string .='null';
+	}else if(is_bool($data)){
+		$string .='null';
+	}
 	return $string;
 }
