@@ -1,5 +1,6 @@
 <?php
 /**
+ * 系统公共函数
  * Created by PhpStorm.
  * User: jiangxijun
  * Email: jiang818@qq.com
@@ -9,99 +10,98 @@
  */
 
 /**
- * 在控制台打印结果
+ * 页面打印变量
  * User: jiangxijun
  * Email: jiang818@qq.com
  * Qq: 263088049
- * @param $val
- * @param bool $is_repeat 是否带开始结束
+ * @param $data
  */
-function clog($val, $is_repeat = false)
+function dump($data)
 {
 	$debug = debug_backtrace();
 	unset($debug[0]['args']);
+	$info = $debug[0]['file'] . "|line:" . $debug[0]['line'] . "|time:" . microtime(true) . "|mem:" . memory_get_usage();
+	$string = '';
+	$string .= '<div>';
+	$string .= '<h5 style="color: red;margin: 0">' . $info . '</h5>';
+	$string .= '<p style="color: green;line-height: 18px; font-size: 14px">';
+	$string .= _dump($data);
+	$string .= '</p>';
+	$string .= '</div>';
+	echo $string;
+}
+
+/**
+ * 控制台打印变量
+ * User: jiangxijun
+ * Email: jiang818@qq.com
+ * Qq: 263088049
+ * @param $data
+ */
+function dumpc($data)
+{
+	$debug = debug_backtrace();
+	unset($debug[0]['args']);
+	$info = $debug[0]['file'] . "|line:" . $debug[0]['line'] . "|time:" . microtime(true) . "|mem:" . memory_get_usage();
 	$repeat = str_repeat('-', 20);
 	$string = "\n";
 	$string .= "<script>\n";
-	$string .= $is_repeat ? "console.log('%c" . $repeat . "开始" . $repeat . "','color:#fff;background-color: #000;');\n" : "";
-	$string .= "console.log('%cfile:" . addslashes($debug[0]['file']) . "|line:" . $debug[0]['line'] . "|time:" . microtime(true) . "|mem:" . memory_get_usage() . "','color:red');\n";
-	if (is_array($val) || is_object($val)) {
-		$string .= "console.log(" . json_encode($val) . ");\n";
-	} else {
-		$val = is_bool($val) ? ($val ? "true" : "false") : $val;
-		$string .= "console.log('" . $val . "');\n";
-	}
-	$string .= $is_repeat ? "console.log('%c" . $repeat . "结束" . $repeat . "','color:#fff;background-color: #000;');" : "";
-	$string .= "</script>";
+	$string .= "//调试\n";
+	$string .= "console.log('%cfile:" . addslashes($info) . "','color:red');\n";
+	$result = _dump($data, true);
+	$string .= "console.log('%c" . $result . "','color:green');\n";;
+	$string .= "</script>\n";
 	echo $string;
 }
 
 
-function dump(&$var, $var_name = NULL, $indent = NULL, $reference = NULL)
+/**
+ * 组织格式化输出字符串（为了dump和dumpc使用）
+ * User: jiangxijun
+ * Email: jiang818@qq.com
+ * Qq: 263088049
+ * @param $data 需要打印变量
+ * @param bool $is_console 是否console格式
+ * @param null $field_name 字段名（递归使用）
+ * @param int $level 级（递归使用）
+ * @return string
+ */
+function _dump($data, $is_console = false, $field_name = null, $level = 0)
 {
-	$do_dump_indent = "<span style='color:#666666;'>|</span> &nbsp;&nbsp; ";
-	$reference = $reference . $var_name;
-	$keyvar = 'the_do_dump_recursion_protection_scheme';
-	$keyname = 'referenced_object_name';
-
-	// So this is always visible and always left justified and readable
-	echo "<div style='text-align:left; background-color:white; font: 100% monospace; color:black;'>";
-
-	if (is_array($var) && isset($var[$keyvar])) {
-		$real_var = &$var[$keyvar];
-		$real_name = &$var[$keyname];
-		$type = ucfirst(gettype($real_var));
-		echo "$indent$var_name <span style='color:#666666'>$type</span> = <span style='color:#e87800;'>&amp;$real_name</span><br>";
+	$rn = $is_console ? '\n' : '<br />';
+	$space = $is_console ? "|    " : "|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+	$string = "";
+	$repeat_space = str_repeat($space, $level);
+	$string .= $repeat_space;
+	$type = ucfirst(gettype($data));
+	$real_type = $type === 'Double' ? 'Float' : $type;
+	$count = 0;
+	if (is_array($data) || is_object($data)) {
+		$count += count((array)$data);
+		$string .= !is_null($field_name) ? "[\"$field_name\"]=>" : "";
+		$string .= $real_type . " ($count)" . $rn;
+		$level++;
+		$string .= $repeat_space . "(" . $rn;
+		foreach ($data as $field_name => $value) {
+			$string .= _dump($value, $is_console, $field_name, $level);
+		}
+		$string .= $repeat_space . ")" . $rn;
 	} else {
-		$var = array($keyvar => $var, $keyname => $reference);
-		$avar = &$var[$keyvar];
+		$count += strlen($data);
+		$string .= !is_null($field_name) ? "[\"$field_name\"]=>" : "";
 
-		$type = ucfirst(gettype($avar));
-		if ($type == "String") $type_color = "<span style='color:green'>";
-		elseif ($type == "Integer") $type_color = "<span style='color:red'>";
-		elseif ($type == "Double") {
-			$type_color = "<span style='color:#0099c5'>";
-			$type = "Float";
-		} elseif ($type == "Boolean") $type_color = "<span style='color:#92008d'>";
-		elseif ($type == "NULL") $type_color = "<span style='color:black'>";
-
-		if (is_array($avar)) {
-			$count = count($avar);
-			echo "$indent" . ($var_name ? "$var_name => " : "") . "<span style='color:#666666'>$type ($count)</span><br>$indent(<br>";
-			$keys = array_keys($avar);
-			foreach ($keys as $name) {
-				$value = &$avar[$name];
-				dump($value, "['$name']", $indent . $do_dump_indent, $reference);
-			}
-			echo "$indent)<br>";
-		} elseif (is_object($avar)) {
-			echo "$indent$var_name <span style='color:#666666'>$type</span><br>$indent(<br>";
-			foreach ($avar as $name => $value) dump($value, "$name", $indent . $do_dump_indent, $reference);
-			echo "$indent)<br>";
-		} elseif (is_int($avar)) echo "$indent$var_name = <span style='color:#666666'>$type(" . strlen($avar) . ")</span> $type_color" . htmlentities($avar) . "</span><br>";
-		elseif (is_string($avar)) echo "$indent$var_name = <span style='color:#666666'>$type(" . strlen($avar) . ")</span> $type_color\"" . htmlentities($avar) . "\"</span><br>";
-		elseif (is_float($avar)) echo "$indent$var_name = <span style='color:#666666'>$type(" . strlen($avar) . ")</span> $type_color" . htmlentities($avar) . "</span><br>";
-		elseif (is_bool($avar)) echo "$indent$var_name = <span style='color:#666666'>$type(" . strlen($avar) . ")</span> $type_color" . ($avar == 1 ? "TRUE" : "FALSE") . "</span><br>";
-		elseif (is_null($avar)) echo "$indent$var_name = <span style='color:#666666'>$type(" . strlen($avar) . ")</span> {$type_color}NULL</span><br>";
-		else echo "$indent$var_name = <span style='color:#666666'>$type(" . strlen($avar) . ")</span> " . htmlentities($avar) . "<br>";
-		$var = $var[$keyvar];
+		if (is_null($data)) {
+			$real_data = 'null';
+		} else if (is_bool($data)) {
+			$real_data = $data ? 'TRUE' : 'FALSE';
+		} else if (is_string($data)) {
+			$real_data = '"' . $data . '"';
+		} else {
+			$real_data = $data;
+		}
+		$string .= $real_type . " ($count) " . $real_data;
+		$string .= $rn;
 	}
-	echo "</div>";
-}
 
-
-function cdump($data)
-{
-	echo _cdump($data);
-}
-
-function _cdump($data, $level = 0){
-	$string = '';
-	$space = ' ';
-	if(is_null($data)){
-		$string .='null';
-	}else if(is_bool($data)){
-		$string .='null';
-	}
 	return $string;
 }
