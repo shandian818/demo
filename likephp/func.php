@@ -20,14 +20,14 @@ function dump($data)
 {
 	$debug = debug_backtrace();
 	unset($debug[0]['args']);
-	$info = $debug[0]['file'] . "|line:" . $debug[0]['line'] . "|time:" . microtime(true) . "|mem:" . memory_get_usage();
-	$string = '';
-	$string .= '<div>';
-	$string .= '<h5 style="color: red;margin: 0">' . $info . '</h5>';
-	$string .= '<p style="color: green;line-height: 18px; font-size: 14px">';
+	$info = $debug[0]['file'] . ":" . $debug[0]['line'];
+	$string = "\n";
+	$string .= "<div>\n";
+	$string .= "	<h5 style=\"color: red;margin: 0\">" . $info . "</h5>\n";
+	$string .= "		<p style=\"color: green;line-height: 18px; font-size: 14px\">\n";
 	$string .= _dump($data);
-	$string .= '</p>';
-	$string .= '</div>';
+	$string .= "		</p>\n";
+	$string .= "</div>\n";
 	echo $string;
 }
 
@@ -42,8 +42,7 @@ function dumpc($data)
 {
 	$debug = debug_backtrace();
 	unset($debug[0]['args']);
-	$info = $debug[0]['file'] . "|line:" . $debug[0]['line'] . "|time:" . microtime(true) . "|mem:" . memory_get_usage();
-	$repeat = str_repeat('-', 20);
+	$info = $debug[0]['file'] . ":" . $debug[0]['line'];
 	$string = "\n";
 	$string .= "<script>\n";
 	$string .= "//调试\n";
@@ -68,7 +67,7 @@ function dumpc($data)
  */
 function _dump($data, $is_console = false, $field_name = null, $level = 0)
 {
-	$rn = $is_console ? '\n' : '<br />';
+	$rn = $is_console ? '\n' : "<br />\n";
 	$space = $is_console ? "|    " : "|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 	$string = "";
 	$repeat_space = str_repeat($space, $level);
@@ -76,9 +75,10 @@ function _dump($data, $is_console = false, $field_name = null, $level = 0)
 	$type = ucfirst(gettype($data));
 	$real_type = $type === 'Double' ? 'Float' : $type;
 	$count = 0;
+	$field_string = !is_null($field_name) ? "[\"$field_name\"] => " : "";
 	if (is_array($data) || is_object($data)) {
 		$count += count((array)$data);
-		$string .= !is_null($field_name) ? "[\"$field_name\"]=>" : "";
+		$string .= $field_string;
 		$string .= $real_type . " ($count)" . $rn;
 		$level++;
 		$string .= $repeat_space . "(" . $rn;
@@ -88,8 +88,7 @@ function _dump($data, $is_console = false, $field_name = null, $level = 0)
 		$string .= $repeat_space . ")" . $rn;
 	} else {
 		$count += strlen($data);
-		$string .= !is_null($field_name) ? "[\"$field_name\"]=>" : "";
-
+		$string .= $field_string;
 		if (is_null($data)) {
 			$real_data = 'null';
 		} else if (is_bool($data)) {
@@ -99,8 +98,7 @@ function _dump($data, $is_console = false, $field_name = null, $level = 0)
 		} else {
 			$real_data = $data;
 		}
-		$string .= $real_type . " ($count) " . $real_data;
-		$string .= $rn;
+		$string .= $real_type . " ($count) " . $real_data . $rn;
 	}
 
 	return $string;
