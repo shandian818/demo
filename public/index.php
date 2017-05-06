@@ -57,16 +57,23 @@ $test = [
 		]
 	]
 ];
-\likephp\core\Config::set($test);
-$data = \likephp\core\Config::get();
-clog($data);
-\likephp\core\Config::set('b.c', '修改1111');
-$data = \likephp\core\Config::get();
-clog($data);
-\likephp\core\Config::set('b.d.f.h.bb', '修改222');
-$data = \likephp\core\Config::get();
-var_dump('asd');
-cdump('asd');
-dump($data);
 
-//echo json_encode($data,1);
+//clog($test);
+dumpc($test);
+
+dump($test);
+dump($o);
+dump('字符串');
+dump(123);
+dump(123.56);
+dump(true);
+dump(null);
+
+
+dumpc($test);
+dumpc($o);
+dumpc('字符串');
+dumpc(123);
+dumpc(123.56);
+dumpc(true);
+dumpc(null);
