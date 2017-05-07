@@ -22,10 +22,10 @@ require_once __DIR__ . "/../likephp/boot.php";
 //dump($_SERVER);
 //dump($a);
 //
-//clog($_SERVER);
-//clog($a);
+//dump($_SERVER);
+//dump($a);
 //$req = \likephp\core\Request::getInstance();
-//clog($req::domain(false,true));
+//dump($req::domain(false,true));
 //
 //$index = new \apps\index\ctrl\Index();
 //$index->index();
@@ -57,23 +57,28 @@ $test = [
 		]
 	]
 ];
+\likephp\core\Config::set($test);
+$data = \likephp\core\Config::get();
+dump($data);
+\likephp\core\Config::set('b.c', '修改1111');
+$data = \likephp\core\Config::get();
+dump($data);
 
-//clog($test);
-dumpc($test);
-
-dump($test);
-dump($o);
-dump('字符串');
-dump(123);
-dump(123.56);
-dump(true);
-dump(null);
-
-
-dumpc($test);
-dumpc($o);
-dumpc('字符串');
-dumpc(123);
-dumpc(123.56);
-dumpc(true);
-dumpc(null);
+$data = \likephp\core\Config::get('b.d.f.h.bb');
+dump($data);
+\likephp\core\Config::set('b.d.f.h.bb', '修改222');
+$data = \likephp\core\Config::get();
+dump($data);
+$data = \likephp\core\Config::get('b.d.f.h.bb');
+dump($data);
+$data = \likephp\core\Config::set('b.d.f.h.bb',false);
+$data = \likephp\core\Config::get();
+dump($data);
+$data = \likephp\core\Config::set('b.d.f.h.bb',null);
+$data = \likephp\core\Config::get();
+dump($data);
+$data = \likephp\core\Config::set('b.d.f','');
+$data = \likephp\core\Config::get('b.d.f');
+dump($data);
+$data = \likephp\core\Config::get();
+dump($data);
