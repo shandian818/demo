@@ -1,5 +1,6 @@
 <?php
 /**
+ * 配置类
  * Created by PhpStorm.
  * User: jiangxijun
  * Email: jiang818@qq.com
@@ -13,47 +14,76 @@ namespace likephp\core;
 
 class Config
 {
-	static private $_config;
+	static private $_config;//配置信息（目前存在静态变量）
 
-	static public function set($name, $value=null)
+	/**
+	 * 设置配置信息
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $name
+	 * @param null $value
+	 * @return bool
+	 */
+	static public function set($name, $value = null)
 	{
 		$config_data = self::_getConfigFromCache();
-
 		$configArray = self::_updateConfig($name, $value, $config_data);
-
 		$set_status = self::_setConfigToCache($configArray);
-
 		return $set_status;
 	}
 
+	/**
+	 * 获取配置信息
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param string $name
+	 * @return null
+	 */
 	static public function get($name = '')
 	{
 		$config_data = self::_getConfigFromCache();
-		if (false === $config_data) {
-			//原值为false
-			return false;
-		} elseif (is_null($config_data)) {
-			//原值为null
-			$value = null;
-		} else {
-			//原值存在
-			//从session获取值
-			$value = self::_getConfigValueByName($name, $config_data);
-		}
+		$value = self::_getConfigValueByName($name, $config_data);
 		return $value;
 	}
 
+	/**
+	 * 配置写入缓存（目前存在静态变量）
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $config_array
+	 * @return bool
+	 */
 	static private function _setConfigToCache($config_array)
 	{
-		return self::$_config = serialize($config_array);
+		return (self::$_config = serialize($config_array)) ? true : false;
 
 	}
 
+	/**
+	 * 缓存中读取配置（目前存在静态变量）
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @return mixed
+	 */
 	static private function _getConfigFromCache()
 	{
 		return unserialize(self::$_config);
 	}
 
+	/**
+	 * 更新配置信息的变量
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $name
+	 * @param $value
+	 * @param $config_data
+	 * @return array
+	 */
 	static private function _updateConfig($name, $value, $config_data)
 	{
 		$configArray = [];
@@ -81,6 +111,15 @@ class Config
 		return $configArray;
 	}
 
+	/**
+	 * 根据name获取配置的值
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $name
+	 * @param $config_data
+	 * @return null
+	 */
 	static private function _getConfigValueByName($name, $config_data)
 	{
 		$value = null;//默认为null
