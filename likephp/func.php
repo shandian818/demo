@@ -24,7 +24,7 @@ function dump($data)
 	$string = "\n";
 	$string .= "<div>\n";
 	$string .= "	<h5 style=\"color: red;margin: 0\">" . $info . "</h5>\n";
-	$string .= "		<p style=\"color: green;line-height: 18px; font-size: 14px\">\n";
+	$string .= "		<p style=\"color: green;line-height: 16px; font-size: 14px;margin: 5px\">\n";
 	$string .= _dump($data);
 	$string .= "		</p>\n";
 	$string .= "</div>\n";
