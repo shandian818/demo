@@ -1,0 +1,67 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "78556d3cb9b47a5e942c0bd60eb8906a",
+    "packages": [
+        {
+            "name": "shandian818/tools",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/shandian818/tools.git",
+                "reference": "58c741965d8071cbd121b42001ce696d49485a52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/shandian818/tools/zipball/58c741965d8071cbd121b42001ce696d49485a52",
+                "reference": "58c741965d8071cbd121b42001ce696d49485a52",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">= 5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "tools\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "jiangxijun",
+                    "email": "jiang818@qq.com"
+                }
+            ],
+            "description": "likephp framework - tools",
+            "homepage": "http://likephp.com/",
+            "keywords": [
+                "dump",
+                "jiangxijun",
+                "likephp",
+                "shandian818",
+                "tools",
+                "闪电"
+            ],
+            "time": "2017-05-08 13:19:14"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "shandian818/tools": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">= 5.3.0"
+    },
+    "platform-dev": []
+}

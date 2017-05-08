@@ -19,18 +19,18 @@ namespace Composer\Autoload;
  *
  *     // register classes with namespaces
  *     $loader->add('Symfony\Component', __DIR__.'/component');
- *     $loader->add('Symfony',           __DIR__.'/likephp');
+ *     $loader->add('Symfony',           __DIR__.'/framework');
  *
  *     // activate the autoloader
  *     $loader->register();
  *
- *     // to enable searching the inc path (eg. for PEAR packages)
+ *     // to enable searching the include path (eg. for PEAR packages)
  *     $loader->setUseIncludePath(true);
  *
  * In this example, if you try to use a class in the Symfony\Component
  * namespace or one of its children (Symfony\Component\Console for instance),
  * the autoloader will first look for the class under the component/
- * directory, and it will then fallback to the likephp/ directory if not
+ * directory, and it will then fallback to the framework/ directory if not
  * found before giving up.
  *
  * This class is loosely based on the Symfony UniversalClassLoader.
@@ -53,8 +53,9 @@ class ClassLoader
 
     private $useIncludePath = false;
     private $classMap = array();
-
     private $classMapAuthoritative = false;
+    private $missingClasses = array();
+    private $apcuPrefix;
 
     public function getPrefixes()
     {
@@ -230,7 +231,7 @@ class ClassLoader
     }
 
     /**
-     * Turns on searching the inc path for class files.
+     * Turns on searching the include path for class files.
      *
      * @param bool $useIncludePath
      */
@@ -240,7 +241,7 @@ class ClassLoader
     }
 
     /**
-     * Can be used to check if the autoloader uses the inc path to check
+     * Can be used to check if the autoloader uses the include path to check
      * for classes.
      *
      * @return bool
@@ -269,6 +270,26 @@ class ClassLoader
     public function isClassMapAuthoritative()
     {
         return $this->classMapAuthoritative;
+    }
+
+    /**
+     * APCu prefix to use to cache found/not-found classes, if the extension is enabled.
+     *
+     * @param string|null $apcuPrefix
+     */
+    public function setApcuPrefix($apcuPrefix)
+    {
+        $this->apcuPrefix = function_exists('apcu_fetch') && ini_get('apc.enabled') ? $apcuPrefix : null;
+    }
+
+    /**
+     * The APCu prefix in use, or null if APCu caching is not enabled.
+     *
+     * @return string|null
+     */
+    public function getApcuPrefix()
+    {
+        return $this->apcuPrefix;
     }
 
     /**
@@ -313,29 +334,34 @@ class ClassLoader
      */
     public function findFile($class)
     {
-        // work around for PHP 5.3.0 - 5.3.2 https://bugs.php.net/50731
-        if ('\\' == $class[0]) {
-            $class = substr($class, 1);
-        }
-
         // class map lookup
         if (isset($this->classMap[$class])) {
             return $this->classMap[$class];
         }
-        if ($this->classMapAuthoritative) {
+        if ($this->classMapAuthoritative || isset($this->missingClasses[$class])) {
             return false;
+        }
+        if (null !== $this->apcuPrefix) {
+            $file = apcu_fetch($this->apcuPrefix.$class, $hit);
+            if ($hit) {
+                return $file;
+            }
         }
 
         $file = $this->findFileWithExtension($class, '.php');
 
         // Search for Hack files if we are running on HHVM
-        if ($file === null && defined('HHVM_VERSION')) {
+        if (false === $file && defined('HHVM_VERSION')) {
             $file = $this->findFileWithExtension($class, '.hh');
         }
 
-        if ($file === null) {
+        if (null !== $this->apcuPrefix) {
+            apcu_add($this->apcuPrefix.$class, $file);
+        }
+
+        if (false === $file) {
             // Remember that this class does not exist.
-            return $this->classMap[$class] = false;
+            $this->missingClasses[$class] = true;
         }
 
         return $file;
@@ -348,9 +374,13 @@ class ClassLoader
 
         $first = $class[0];
         if (isset($this->prefixLengthsPsr4[$first])) {
-            foreach ($this->prefixLengthsPsr4[$first] as $prefix => $length) {
-                if (0 === strpos($class, $prefix)) {
-                    foreach ($this->prefixDirsPsr4[$prefix] as $dir) {
+            $subPath = $class;
+            while (false !== $lastPos = strrpos($subPath, '\\')) {
+                $subPath = substr($subPath, 0, $lastPos);
+                $search = $subPath.'\\';
+                if (isset($this->prefixDirsPsr4[$search])) {
+                    foreach ($this->prefixDirsPsr4[$search] as $dir) {
+                        $length = $this->prefixLengthsPsr4[$first][$search];
                         if (file_exists($file = $dir . DIRECTORY_SEPARATOR . substr($logicalPathPsr4, $length))) {
                             return $file;
                         }
@@ -395,15 +425,17 @@ class ClassLoader
             }
         }
 
-        // PSR-0 inc paths.
+        // PSR-0 include paths.
         if ($this->useIncludePath && $file = stream_resolve_include_path($logicalPathPsr0)) {
             return $file;
         }
+
+        return false;
     }
 }
 
 /**
- * Scope isolated inc.
+ * Scope isolated include.
  *
  * Prevents access to $this/self from included files.
  */
