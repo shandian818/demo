@@ -4,7 +4,6 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ae7054ed82e876db35f64efb58501844",
     "content-hash": "aac0bc14dfc4637f04514c0bb3ff4c4a",
     "packages": [
         {
@@ -50,7 +49,7 @@
                 "tools",
                 "闪电"
             ],
-            "time": "2017-05-08 13:33:56"
+            "time": "2017-05-08T13:33:56+00:00"
         }
     ],
     "packages-dev": [],

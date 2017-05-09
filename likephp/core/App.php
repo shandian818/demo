@@ -16,10 +16,10 @@ class App
 	static public function run()
 	{
 		require_once 'Loader.php';
-		require_once 'Loader.php';
 		$loader = new Loader();
 		$loader->register();
 		$loader->addNamespace('likephp', LIKE_PATH);
 		$loader->addNamespace('apps', APP_PATH);
+		$route = new \likephp\core\Route();
 	}
 }
