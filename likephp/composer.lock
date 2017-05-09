@@ -4,20 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "78556d3cb9b47a5e942c0bd60eb8906a",
+    "hash": "ae7054ed82e876db35f64efb58501844",
+    "content-hash": "aac0bc14dfc4637f04514c0bb3ff4c4a",
     "packages": [
         {
             "name": "shandian818/tools",
-            "version": "dev-master",
+            "version": "1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/shandian818/tools.git",
-                "reference": "58c741965d8071cbd121b42001ce696d49485a52"
+                "reference": "b13adb75695930d2c285140acb75c17a18fb32f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/shandian818/tools/zipball/58c741965d8071cbd121b42001ce696d49485a52",
-                "reference": "58c741965d8071cbd121b42001ce696d49485a52",
+                "url": "https://api.github.com/repos/shandian818/tools/zipball/b13adb75695930d2c285140acb75c17a18fb32f9",
+                "reference": "b13adb75695930d2c285140acb75c17a18fb32f9",
                 "shasum": ""
             },
             "require": {
@@ -49,15 +50,13 @@
                 "tools",
                 "闪电"
             ],
-            "time": "2017-05-08 13:19:14"
+            "time": "2017-05-08 13:33:56"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "shandian818/tools": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

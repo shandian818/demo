@@ -11,4 +11,6 @@
 namespace likephp;
 header("Content-type: text/html; charset=utf-8");
 require_once 'init.php';
+require_once LIKE_PATH.'vendor/autoload.php';
+require_once 'func.php';
 \likephp\core\App::run();
