@@ -19,8 +19,8 @@ return [
 
 
 	//
-	'default_module' => 'index',
-	'default_controller' => 'index',
-	'default_action' => 'index',
-	'app_namespace' => 'apps'
+	'default_app' => 'index',
+	'default_ctrl' => 'index',
+	'default_act' => 'index',
+	'apps_namespace' => 'apps'
 ];
