@@ -38,14 +38,15 @@ class Config
 	 * User: jiangxijun
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
-	 * @param string $name
+	 * @param string $name 配置项（可英文句号连接）
+	 * @param null $default_value 默认值
 	 * @return null
 	 */
-	static public function get($name = '')
+	static public function get($name = '', $default_value = null)
 	{
 		$config_data = self::_getConfigFromCache();
 		$value = self::_getConfigValueByName($name, $config_data);
-		return $value;
+		return !is_null($value) ? $value : $default_value;
 	}
 
 	/**

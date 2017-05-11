@@ -17,4 +17,9 @@ class Index
 	{
 		echo 'Index/index';
 	}
+
+	public function test()
+	{
+		echo 'Index/test';
+	}
 }

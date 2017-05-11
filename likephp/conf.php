@@ -17,4 +17,10 @@ return [
 	// pathinfo分隔符
 	'pathinfo_depr' => '/',
 
+
+	//
+	'default_module' => 'index',
+	'default_controller' => 'index',
+	'default_action' => 'index',
+	'app_namespace' => 'apps'
 ];
