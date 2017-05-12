@@ -138,7 +138,7 @@ class Route
 	 */
 	private function _setGet()
 	{
-		if (false !== $this->_pathinfo) {
+		if (!empty($this->_pathinfo)) {
 			if (isset($_GET[$_SERVER['QUERY_STRING']])) {
 				unset($_GET[$_SERVER['QUERY_STRING']]);
 			}
