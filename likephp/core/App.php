@@ -38,7 +38,8 @@ class App
 		} catch (\ReflectionException $e) {
 			echo ('类文件不存在:' . $class_name . '->' . $action);//待完善
 		}
-
+		dump('app41');
+		dumpc('app42');
 
 	}
 }

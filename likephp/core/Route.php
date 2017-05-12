@@ -41,7 +41,8 @@ class Route
 		$this->ctrl = $this->_get_ctrl();
 		$this->act = $this->_get_act();
 		$this->_setGet();
-
+		dump('route44');
+		dumpc('route45');
 	}
 
 	private function _pathinfo()

@@ -16,6 +16,9 @@ class Index
 	public function index()
 	{
 		dump($_GET);
+		dump($_SERVER);
+		dumpc($_GET);
+		dumpc($_SERVER);
 		echo 'Index/index';
 	}
 
