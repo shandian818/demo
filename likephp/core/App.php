@@ -33,11 +33,10 @@ class App
 				$class = new $class_name;
 				$class->$action();
 			} else {
-				die('操作不存在:' . $class_name . '->' . $action);
+				echo ('操作不存在:' . $class_name . '->' . $action);//待完善
 			}
 		} catch (\ReflectionException $e) {
-			dump($_GET);
-			die('类文件不存在:' . $class_name . '->' . $action);
+			echo ('类文件不存在:' . $class_name . '->' . $action);//待完善
 		}
 
 
