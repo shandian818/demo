@@ -5,4 +5,4 @@ demo    项目目录
 │  │  ├─index.php   项目入口文件
 │  │  ├─resources   资源目录
 │  │  └─uploads 上传目录（可写）
-└─apps  应用目录
+└─apps  应用目录a
