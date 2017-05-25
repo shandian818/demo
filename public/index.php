@@ -11,8 +11,9 @@
 
 //定义应用目录
 define("APPS_PATH", __DIR__ . "/../apps/");
-define("BIND_APP", 'index');
+//define("BIND_APP", 'index');
 //define("BIND_CTRL", 'index');
 //define("BIND_ACT", 'index');
+define("APP_DEBUG", true);
 //载入框架核心
 require_once __DIR__ . "/../likephp/boot.php";
