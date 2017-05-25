@@ -10,15 +10,15 @@
  */
 
 return [
-	// PATHINFO变量名 用于兼容模式
+	//PATHINFO变量名 用于兼容模式
 	'var_pathinfo' => 'url',
-	// 兼容PATH_INFO获取
+	//兼容PATH_INFO获取
 	'pathinfo_fetch' => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
-	// pathinfo分隔符
+	//pathinfo分隔符
 	'pathinfo_depr' => '/',
 
 
-	//
+	//默认配置
 	'default_app' => 'index',
 	'default_ctrl' => 'index',
 	'default_act' => 'index',
