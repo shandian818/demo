@@ -14,21 +14,21 @@ namespace likephp\core;
 class Route
 {
 
-	public $app;
-	public $ctrl;
-	public $act;
+	static private $_app;
+	static private $_ctrl;
+	static private $_act;
 
-	private $_pathinfo;
+	static private $_pathinfo;
 
-	function __construct()
+	static public function init()
 	{
-		$var_pathinfo = Config::get('var_pathinfo');
+		$var_pathinfo = Config::get('pathinfo.var');
 		if (isset($_GET[$var_pathinfo])) {
 			$_SERVER['PATH_INFO'] = $_GET[$var_pathinfo];
 			unset($_GET[$var_pathinfo]);
 		}
 		if (!isset($_SERVER['PATH_INFO'])) {
-			foreach (Config::get('pathinfo_fetch') as $type) {
+			foreach (Config::get('pathinfo.fetch') as $type) {
 				if (!empty($_SERVER[$type])) {
 					$_SERVER['PATH_INFO'] = (0 === strpos($_SERVER[$type], $_SERVER['SCRIPT_NAME'])) ?
 						substr($_SERVER[$type], strlen($_SERVER['SCRIPT_NAME'])) : $_SERVER[$type];
@@ -36,21 +36,37 @@ class Route
 				}
 			}
 		}
-		$this->_pathinfo();
+		self::_pathinfo();
 		$match_route = false;//是否匹配了指定路由
 		if ($match_route) {
 			//匹配了规则路由
 
 		} else {
 			//默认路由
-			$this->app = $this->_get_app();
-			$this->ctrl = $this->_get_ctrl();
-			$this->act = $this->_get_act();
+			self::$_app = self::_get_app();
+			self::$_ctrl = self::_get_ctrl();
+			self::$_act = self::_get_act();
 		}
-		$this->_setGet();
+		self::_setGet();
 	}
 
-	private function _pathinfo()
+	static public function getApp()
+	{
+		return self::$_app;
+	}
+
+	static public function getCtrl()
+	{
+		return self::$_ctrl;
+	}
+
+	static public function getAct()
+	{
+		return self::$_act;
+	}
+
+
+	static private function _pathinfo()
 	{
 		if (!empty($_SERVER['PATH_INFO'])) {
 			$trim_path = trim($_SERVER['PATH_INFO']);
@@ -60,7 +76,7 @@ class Route
 			} else {
 				$pathinfo = $trim_path;
 			}
-			$this->_pathinfo = explode('/', trim($pathinfo, '/'));
+			self::$_pathinfo = explode('/', trim($pathinfo, '/'));
 		}
 	}
 
@@ -71,14 +87,14 @@ class Route
 	 * Qq: 263088049
 	 * @return string
 	 */
-	private function _get_app()
+	static private function _get_app()
 	{
-		$default_app = Config::get('default_app', 'index');
+		$default_app = Config::get('sys.default_app', 'index');
 		if (defined('BIND_APP')) {
 			$app = BIND_APP;
-		} else if (isset($this->_pathinfo[0])) {
-			$app = $this->_pathinfo[0];
-			unset($this->_pathinfo[0]);
+		} else if (isset(self::$_pathinfo[0])) {
+			$app = self::$_pathinfo[0];
+			unset(self::$_pathinfo[0]);
 		} else {
 			$app = $default_app;
 		}
@@ -92,17 +108,17 @@ class Route
 	 * Qq: 263088049
 	 * @return string
 	 */
-	private function _get_ctrl()
+	static private function _get_ctrl()
 	{
-		$default_ctrl = Config::get('default_ctrl', 'index');
+		$default_ctrl = Config::get('sys.default_ctrl', 'index');
 		if (defined('BIND_CTRL')) {
 			$ctrl = BIND_CTRL;
-		} else if (isset($this->_pathinfo[0]) && defined('BIND_APP')) {
-			$ctrl = $this->_pathinfo[0];
-			unset($this->_pathinfo[0]);
-		} else if (isset($this->_pathinfo[1])) {
-			$ctrl = $this->_pathinfo[1];
-			unset($this->_pathinfo[1]);
+		} else if (isset(self::$_pathinfo[0]) && defined('BIND_APP')) {
+			$ctrl = self::$_pathinfo[0];
+			unset(self::$_pathinfo[0]);
+		} else if (isset(self::$_pathinfo[1])) {
+			$ctrl = self::$_pathinfo[1];
+			unset(self::$_pathinfo[1]);
 		} else {
 			$ctrl = $default_ctrl;
 		}
@@ -116,20 +132,20 @@ class Route
 	 * Qq: 263088049
 	 * @return bool|null|string
 	 */
-	private function _get_act()
+	static private function _get_act()
 	{
-		$default_act = Config::get('default_act', 'index');
+		$default_act = Config::get('sys.default_act', 'index');
 		if (defined('BIND_ACT')) {
 			$act = BIND_ACT;
-		} else if (isset($this->_pathinfo[0]) && defined('BIND_APP') && defined('BIND_CTRL')) {
-			$act = $this->_pathinfo[0];
-			unset($this->_pathinfo[0]);
-		} else if (isset($this->_pathinfo[1]) && defined('BIND_APP')) {
-			$act = $this->_pathinfo[1];
-			unset($this->_pathinfo[1]);
-		} else if (isset($this->_pathinfo[2])) {
-			$act = $this->_pathinfo[2];
-			unset($this->_pathinfo[2]);
+		} else if (isset(self::$_pathinfo[0]) && defined('BIND_APP') && defined('BIND_CTRL')) {
+			$act = self::$_pathinfo[0];
+			unset(self::$_pathinfo[0]);
+		} else if (isset(self::$_pathinfo[1]) && defined('BIND_APP')) {
+			$act = self::$_pathinfo[1];
+			unset(self::$_pathinfo[1]);
+		} else if (isset(self::$_pathinfo[2])) {
+			$act = self::$_pathinfo[2];
+			unset(self::$_pathinfo[2]);
 		} else {
 			$act = $default_act;
 		}
@@ -142,13 +158,13 @@ class Route
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
 	 */
-	private function _setGet()
+	static private function _setGet()
 	{
-		if (!empty($this->_pathinfo)) {
+		if (!empty(self::$_pathinfo)) {
 			if (isset($_GET[$_SERVER['QUERY_STRING']])) {
 				unset($_GET[$_SERVER['QUERY_STRING']]);
 			}
-			$params_array = array_values($this->_pathinfo);
+			$params_array = array_values(self::$_pathinfo);
 			$count = count($params_array);
 			$i = 0;
 			while ($i < $count) {

@@ -11,7 +11,9 @@
 
 namespace apps\index\ctrl;
 
-class Index
+use likephp\core\Ctrl;
+
+class Index extends Ctrl
 {
 	public function index()
 	{
@@ -24,6 +26,6 @@ class Index
 
 	public function test()
 	{
-		echo 'Index/test';
+		return $this->Render();
 	}
 }

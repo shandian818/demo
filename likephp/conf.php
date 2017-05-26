@@ -10,17 +10,29 @@
  */
 
 return [
-	//PATHINFO变量名 用于兼容模式
-	'var_pathinfo' => 'url',
-	//兼容PATH_INFO获取
-	'pathinfo_fetch' => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
-	//pathinfo分隔符
-	'pathinfo_depr' => '/',
+
+	//系统配置
+	'sys' => [
+		'default_app' => 'index',
+		'default_ctrl' => 'index',
+		'default_act' => 'index',
+		'apps_namespace' => 'apps',
+	],
+	//视图配置
+	'view' => [
+		'path' => '',//为空则在app下的view
+		'suffix' => '.html',
+		'cache_suffix' => '.php',
+		'cache_path' => './cache/',
+		'directive_prefix' => 'like-',
+	],
+	//pathinfo配置
+
+	'pathinfo' => [
+		'var' => 'url',
+		'fetch' => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
+		'depr' => '/',
+	]
 
 
-	//默认配置
-	'default_app' => 'index',
-	'default_ctrl' => 'index',
-	'default_act' => 'index',
-	'apps_namespace' => 'apps'
 ];

@@ -22,11 +22,13 @@ class App
 		require_once LIKE_PATH . 'func.php';//载入系统公共函数
 		$default_config = require_once LIKE_PATH . 'conf.php';
 		\likephp\core\Config::set($default_config);//载入系统默认配置
-		$apps_namespace = \likephp\core\Config::get('apps_namespace');//获取配置的app命名空间
+		$apps_namespace = \likephp\core\Config::get('sys.apps_namespace');//获取配置的app命名空间
 		$loader->addNamespace($apps_namespace, APPS_PATH);//载入应用命名空间
-		$route = new \likephp\core\Route();
-		$class_name = "\\$apps_namespace\\{$route->app}\\ctrl\\{$route->ctrl}";
-		$action = $route->act;
+		\likephp\core\Route::init();
+		$app =\likephp\core\Route::getApp();
+		$ctrl =\likephp\core\Route::getCtrl();
+		$action =\likephp\core\Route::getAct();
+		$class_name = "\\$apps_namespace\\{$app}\\ctrl\\{$ctrl}";
 		try {
 			$ref = new \ReflectionClass($class_name);
 			if ($ref->hasMethod($action)) {

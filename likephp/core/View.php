@@ -21,12 +21,12 @@ class View
 	 * @var array
 	 */
 	private $_options = [
-		'view_debug' => false,
-		'view_path' => './view/',
-		'view_suffix' => '.html',
-		'view_cache_suffix' => '.php',
-		'view_cache_path' => './cache/',
-		'view_directive_prefix' => 'like-',
+		'debug' => false,
+		'path' => './view/',
+		'suffix' => '.html',
+		'cache_suffix' => '.php',
+		'cache_path' => './cache/',
+		'directive_prefix' => 'like-',
 	];
 
 	//用来渲染的数据
@@ -69,19 +69,21 @@ class View
 	 * @param $tpl_name
 	 * @param array $tpl_data
 	 */
-	public function fetch($tpl_name, $tpl_data = [])
+	public function make($tpl_name, $tpl_data = [])
 	{
-		$cache_file = $this->_options['view_cache_path'] . md5($tpl_name) . $this->_options['view_cache_suffix'];
-		if (!file_exists($cache_file) || $this->_options['view_debug']) {
+		$cache_file = $this->_options['cache_path'] . md5($tpl_name) . $this->_options['cache_suffix'];
+		if (!file_exists($cache_file) || $this->_options['debug']) {
 			//没有缓存或者是debug模式-重新编译模板
 			$cache_dir = dirname($cache_file);
 			if (!is_dir($cache_dir)) {
 				mkdir($cache_dir, 0777);
 			}
 			// 编译生成缓存
-			$content = $this->_getCacheContent($tpl_name, $tpl_data);
-			file_put_contents($cache_file, $content);
+			$this->_makeCacheFile($cache_file, $tpl_name, $tpl_data);
 		}
+		//获取缓存文件内容
+		$cache_content = $this->_getCacheContent($cache_file);
+		return $cache_content;
 	}
 
 	/**
@@ -93,7 +95,24 @@ class View
 	 * @param $tpl_data
 	 * @return string
 	 */
-	private function _getCacheContent($tpl_name, $tpl_data)
+	private function _getCacheContent($cache_file)
+	{
+		if (file_exists($cache_file)){
+			$content = file_get_contents($cache_file);
+		}
+
+		return $content;
+	}
+
+	/**
+	 * 生成缓存文件
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $tpl_name
+	 * @param $tpl_data
+	 */
+	private function _makeCacheFile($cache_file, $tpl_name, $tpl_data)
 	{
 		if (!empty($tpl_data)) {
 			$this->_view_data = array_merge($this->_view_data, $tpl_data);
@@ -101,7 +120,7 @@ class View
 		$tpl_content = $this->_getTplContent($tpl_name);
 		//模板解析
 		$result = $this->_parseContent($tpl_content);
-		return $result;
+		file_put_contents($cache_file, $result);
 	}
 
 	/**
@@ -115,10 +134,10 @@ class View
 	 */
 	private function _getTplContent($tpl_name)
 	{
-		if (file_exists($tpl_name) || false !== strpos($tpl_name, $this->_options['view_suffix'])) {
+		if (file_exists($tpl_name) || false !== strpos($tpl_name, $this->_options['suffix'])) {
 			$real_filename = $tpl_name;
 		} else {
-			$real_filename = $this->_options['view_path'] . strtolower($tpl_name) . $this->_options['view_suffix'];
+			$real_filename = $this->_options['path'] . strtolower($tpl_name) . $this->_options['suffix'];
 		}
 		if (is_file($real_filename)) {
 			return file_get_contents($real_filename);
