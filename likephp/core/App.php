@@ -25,9 +25,9 @@ class App
 		$apps_namespace = \likephp\core\Config::get('sys.apps_namespace');//获取配置的app命名空间
 		$loader->addNamespace($apps_namespace, APPS_PATH);//载入应用命名空间
 		\likephp\core\Route::init();
-		$app =\likephp\core\Route::getApp();
-		$ctrl =\likephp\core\Route::getCtrl();
-		$action =\likephp\core\Route::getAct();
+		$app = \likephp\core\Route::getApp();
+		$ctrl = \likephp\core\Route::getCtrl();
+		$action = \likephp\core\Route::getAct();
 		$class_name = "\\$apps_namespace\\{$app}\\ctrl\\{$ctrl}";
 		try {
 			$ref = new \ReflectionClass($class_name);
@@ -35,10 +35,10 @@ class App
 				$class = new $class_name;
 				$class->$action();
 			} else {
-				echo ('操作不存在:' . $class_name . '->' . $action);//待完善
+				echo('操作不存在:' . $class_name . '->' . $action);//待完善
 			}
 		} catch (\ReflectionException $e) {
-			echo ('类文件不存在:' . $class_name . '->' . $action);//待完善
+			echo('类文件不存在:' . $class_name . '->' . $action);//待完善
 		}
 	}
 }

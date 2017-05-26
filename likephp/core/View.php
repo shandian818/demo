@@ -27,6 +27,8 @@ class View
 		'cache_suffix' => '.php',
 		'cache_path' => './cache/',
 		'directive_prefix' => 'like-',
+		'tag_left' => '{{',
+		'tag_right' => '}}',
 	];
 
 	//用来渲染的数据
@@ -91,16 +93,12 @@ class View
 	 * User: jiangxijun
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
-	 * @param $tpl_name
-	 * @param $tpl_data
-	 * @return string
+	 * @param $cache_file
+	 * @return bool|string
 	 */
 	private function _getCacheContent($cache_file)
 	{
-		if (file_exists($cache_file)){
-			$content = file_get_contents($cache_file);
-		}
-
+		$content = file_get_contents($cache_file);
 		return $content;
 	}
 
@@ -157,6 +155,11 @@ class View
 	private function _parseContent($tpl_content)
 	{
 
-		return '';
+		return $tpl_content;
+	}
+
+	private function _parseValue($tpl_content)
+	{
+
 	}
 }
