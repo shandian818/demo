@@ -37,9 +37,16 @@ class Route
 			}
 		}
 		$this->_pathinfo();
-		$this->app = $this->_get_app();
-		$this->ctrl = $this->_get_ctrl();
-		$this->act = $this->_get_act();
+		$match_route = false;//是否匹配了指定路由
+		if ($match_route) {
+			//匹配了规则路由
+
+		} else {
+			//默认路由
+			$this->app = $this->_get_app();
+			$this->ctrl = $this->_get_ctrl();
+			$this->act = $this->_get_act();
+		}
 		$this->_setGet();
 	}
 
