@@ -29,7 +29,7 @@ class Dump
 		$string = "\n";
 		$string .= "<div>\n";
 		$string .= "	<p style=\"color: red;margin: 0\">" . $info . "</p>\n";
-		$string .= "	<p style=\"color: green;line-height: 16px; font-size: 14px;margin: 5px\">\n";
+		$string .= "	<p style=\"color: green;line-height: 16px; font-size: 14px;margin: 5px;white-space: nowrap;\">\n";
 		$string .= self::_dump($data);
 		$string .= "	</p>\n";
 		$string .= "</div>\n";
@@ -133,7 +133,8 @@ class Dump
 			} else if (is_bool($data)) {
 				$real_data = $data ? 'TRUE' : 'FALSE';
 			} else if (is_string($data)) {
-				$real_data = '"' . $data . '"';
+				$str = $is_console ? addslashes($data) : $data;
+				$real_data = '"' . $str . '"';
 			} else {
 				$real_data = $data;
 			}
