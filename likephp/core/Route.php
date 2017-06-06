@@ -13,11 +13,6 @@ namespace likephp\core;
 
 class Route
 {
-
-	static private $_app;
-	static private $_ctrl;
-	static private $_act;
-
 	static private $_pathinfo;
 
 	static public function init()
@@ -43,28 +38,14 @@ class Route
 
 		} else {
 			//默认路由
-			self::$_app = self::_get_app();
-			self::$_ctrl = self::_get_ctrl();
-			self::$_act = self::_get_act();
+			$_app = self::_get_app();
+			$_ctrl = self::_get_ctrl();
+			$_act = self::_get_act();
+
 		}
+		Request::getInstance($_app, $_ctrl, $_act);
 		self::_setGet();
 	}
-
-	static public function getApp()
-	{
-		return self::$_app;
-	}
-
-	static public function getCtrl()
-	{
-		return self::$_ctrl;
-	}
-
-	static public function getAct()
-	{
-		return self::$_act;
-	}
-
 
 	static private function _pathinfo()
 	{

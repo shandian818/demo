@@ -25,9 +25,9 @@ class App
 		$apps_namespace = \likephp\core\Config::get('sys.apps_namespace');//获取配置的app命名空间
 		$loader->addNamespace($apps_namespace, APPS_PATH);//载入应用命名空间
 		\likephp\core\Route::init();
-		$app = \likephp\core\Route::getApp();
-		$ctrl = \likephp\core\Route::getCtrl();
-		$action = \likephp\core\Route::getAct();
+		$app = \likephp\core\Request::getApp();
+		$ctrl = \likephp\core\Request::getCtrl();
+		$action = \likephp\core\Request::getAct();
 		$class_name = "\\$apps_namespace\\{$app}\\ctrl\\{$ctrl}";
 		try {
 			$ref = new \ReflectionClass($class_name);

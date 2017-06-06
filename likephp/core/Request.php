@@ -19,12 +19,19 @@ class Request
 	static private $_domain;
 	static private $_port;
 
-	function __construct()
+	static private $_app;
+	static private $_ctrl;
+	static private $_act;
+
+	function __construct($app, $ctrl, $act)
 	{
 		self::$_method = strtoupper($_SERVER['REQUEST_METHOD']);
 		self::$_scheme = empty($_SERVER['HTTP_X_CLIENT_PROTO']) ? 'http' : $_SERVER['HTTP_X_CLIENT_PROTO'];
 		self::$_domain = $_SERVER['SERVER_NAME'];
 		self::$_port = $_SERVER['SERVER_PORT'];
+		self::$_app = $app;
+		self::$_ctrl = $ctrl;
+		self::$_act = $act;
 
 	}
 
@@ -35,10 +42,10 @@ class Request
 	 * Qq: 263088049
 	 * @return static
 	 */
-	static public function getInstance()
+	static public function getInstance($app, $ctrl, $act)
 	{
 		if (is_null(self::$_instance)) {
-			self::$_instance = new static();
+			self::$_instance = new static($app, $ctrl, $act);
 		}
 		return self::$_instance;
 	}
@@ -84,8 +91,18 @@ class Request
 		return $domain;
 	}
 
-	static public function pathinfo()
+	static public function getApp()
 	{
+		return self::$_app;
+	}
 
+	static public function getCtrl()
+	{
+		return self::$_ctrl;
+	}
+
+	static public function getAct()
+	{
+		return self::$_act;
 	}
 }
