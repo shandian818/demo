@@ -10,8 +10,13 @@ testAAAAA<br/>
 <?php echo ($info['name']);?><br/>
 <?php echo ($info['user']['name']);?><br/>
 <?php echo ($info["user"]["name"]);?><br/>
+<?php echo ($info["name"]);?><br/>
+<?php echo ($info["name"]);?><br/>
+<?php echo ($info["name"]);?><br/>
+<?php echo ($info["name"]);?><br/>
 <hr/>
-<include file="test" />
+<b><?php echo ($info['user']['name']);?></b>
+<b><?php echo ($info['user']['name']);?></b>
 
 </body>
 </html>

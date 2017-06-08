@@ -21,13 +21,14 @@ class App
 		$loader->addNamespace('likephp', LIKE_PATH);//载入核心命名空间
 		require_once LIKE_PATH . 'func.php';//载入系统公共函数
 		$default_config = require_once LIKE_PATH . 'conf.php';
-		\likephp\core\Config::set($default_config);//载入系统默认配置
-		$apps_namespace = \likephp\core\Config::get('sys.apps_namespace');//获取配置的app命名空间
+		Config::set($default_config);//载入系统默认配置
+		Error::register();//载入异常处理
+		$apps_namespace = Config::get('sys.apps_namespace');//获取配置的app命名空间
 		$loader->addNamespace($apps_namespace, APPS_PATH);//载入应用命名空间
-		\likephp\core\Route::init();
-		$app = \likephp\core\Request::getApp();
-		$ctrl = \likephp\core\Request::getCtrl();
-		$action = \likephp\core\Request::getAct();
+		Route::init();
+		$app = Request::getApp();
+		$ctrl = Request::getCtrl();
+		$action = Request::getAct();
 		$class_name = "\\$apps_namespace\\{$app}\\ctrl\\{$ctrl}";
 		try {
 			$ref = new \ReflectionClass($class_name);

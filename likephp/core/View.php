@@ -87,7 +87,11 @@ class View
 			//重新编译
 			extract($this->_view_data);
 			$this->_makeCompileFile($compile_file, $tpl_name, $tpl_data);
-			include $compile_file;
+			try {
+				require_once $compile_file;
+			} catch (\Exception $e) {
+
+			}
 		}
 
 		if (false == $this->_options['debug'] && false != $this->_options['cache_switch']) {
@@ -121,10 +125,10 @@ class View
 		//1.去除bom头
 		$parse_content = trim($this->_removeUTF8Bom($tpl_real_content));
 		//2.解析include
+		$parse_content = $this->_parseInculde($parse_content);
+		//3.解析标签
 
-		//3.解析变量
-
-//		$parse_content = $this->_parseVarA($parse_content);
+		//4.解析变量
 		$parse_content = $this->_parseVar($parse_content);
 
 		return $parse_content;
@@ -167,7 +171,7 @@ class View
 	 * User: jiangxijun
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
-	 * @param $tpl_name
+	 * @param $tpl_real_filename
 	 * @return bool|string
 	 * @throws \Exception
 	 */
@@ -181,10 +185,12 @@ class View
 	}
 
 	/**
-	 * 去掉UTF-8 Bom头
-	 * @param  string $string
-	 * @access protected
-	 * @return string
+	 * 去掉Bom头
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $content
+	 * @return bool|string
 	 */
 	private function _removeUTF8Bom($content)
 	{
@@ -192,24 +198,21 @@ class View
 		return $parse_content;
 	}
 
-	private function _parseVarA($parse_content)
-	{
-
-		$pattern = '/' . $this->_options['var_left'] . '\s*\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s*' . $this->_options['var_right'] . '/i';
-		if (preg_match($pattern, $parse_content)) {
-			$parse_content = preg_replace_callback($pattern, '<?php echo \$this->_view_data["$1"];?>', $parse_content);
-		}
-		return $parse_content;
-	}
-
+	/**
+	 * 解析模板变量
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $parse_content
+	 * @return mixed
+	 */
 	private function _parseVar($parse_content)
 	{
-
-		$pattern_dot = '/\$\w+((\.\w+)*)?/i';
+		$pattern_dot = '/\$\w+((\.\w+)*)?/is';
 		if (preg_match($pattern_dot, $parse_content)) {
-			$parse_content = preg_replace_callback($pattern_dot, [$this, 'parseVarDot'], stripslashes($parse_content));
+			$parse_content = preg_replace_callback($pattern_dot, [$this, '_parseVarDot'], $parse_content);
 		}
-		$pattern = '/' . $this->_options['var_left'] . '\s?(\$[^\d\s]*)' . $this->_options['var_right'] . '/i';
+		$pattern = '/' . $this->_options['var_left'] . '\s*(\$[^\d\s]*)\s*' . $this->_options['var_right'] . '/is';
 		if (preg_match($pattern, $parse_content)) {
 			$parse_content = preg_replace($pattern, '<?php echo ($1);?>', $parse_content);
 		}
@@ -217,7 +220,52 @@ class View
 
 	}
 
-	private function parseVarDot($var)
+
+	/**
+	 * 解析include标签
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $parse_content
+	 * @return mixed
+	 */
+	private function _parseInculde($parse_content)
+	{
+
+		$pattern = '/' . $this->_options['tag_left'] . '\s*include\s*file=[\'"](.+?)[\'"]\s*\/' . $this->_options['tag_right'] . '/is';
+		if (preg_match($pattern, $parse_content)) {
+			$parse_content = preg_replace_callback($pattern, [$this, '_parseIncludeFile'], $parse_content);
+		}
+
+		return $parse_content;
+
+	}
+
+	/**
+	 * 解析include标签中的文件
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $parse_content
+	 * @return bool|string
+	 */
+	private function _parseIncludeFile($parse_content)
+	{
+		$template = stripslashes($parse_content[1]);
+		$tpl_real_filename = $this->_getTplRealFileName($template);
+		$tpl_real_content = $this->_getTplRealFileContent($tpl_real_filename);//获取真实模板文件内容
+		return $tpl_real_content;
+	}
+
+	/**
+	 * 解析模板变量快捷键（英文.）
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $var
+	 * @return mixed|string
+	 */
+	private function _parseVarDot($var)
 	{
 		if (empty($var[0])) {
 			return '';
