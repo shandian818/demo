@@ -20,11 +20,22 @@ return [
 	],
 	//视图配置
 	'view' => [
-		'path' => '',//为空则在app下的view
-		'suffix' => '.html',
-		'cache_suffix' => '.php',
-		'cache_path' => './cache/',
-		'directive_prefix' => 'like-',
+		'debug' => false,//是否调试模式
+
+		'tpl_path' => './view/',//模板文件目录
+		'tpl_suffix' => '.html',//模板后缀
+
+		'compile_path' => './cache/',//编译文件目录
+		'compile_suffix' => '.php',//编译文件后缀
+
+		'cache_switch' => true,//是否开启静态缓存
+		'cache_path' => './cache/html/',//静态html缓存文件目录
+		'cache_time' => 3600,//静态html缓存时效（单位秒）
+
+		'var_left' => '{{',//模板变量左标记
+		'var_right' => '}}',//模板变量右标记
+		'tag_left' => '<',//模板标签左标记
+		'tag_right' => '>',//模板标签右标记
 	],
 	//pathinfo配置
 

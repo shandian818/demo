@@ -27,6 +27,7 @@ class Index extends Ctrl
 	public function test()
 	{
 		$this->assign('name', '名字');
+		$this->assign('info', ['name'=>'iname','user'=>['name'=>'uuu']]);
 		$this->Render('testA');
 	}
 }

@@ -13,6 +13,8 @@ namespace likephp\core;
 
 class View
 {
+	private $_view_data;//模板变量
+
 	/**
 	 * 默认配置
 	 * User: jiangxijun
@@ -21,20 +23,23 @@ class View
 	 * @var array
 	 */
 	private $_options = [
-		'debug' => false,
-		'path' => './view/',
-		'suffix' => '.html',
-		'cache_suffix' => '.php',
-		'cache_path' => './cache/',
-		'directive_prefix' => 'like-',
-		'var_left' => '{{',
-		'var_right' => '}}',
-		'tag_left' => '<',
-		'tag_right' => '>',
-	];
+		'debug' => false,//是否调试模式
 
-	//用来渲染的数据
-	private $_view_data = [];
+		'tpl_path' => './view/',//模板文件目录
+		'tpl_suffix' => '.html',//模板后缀
+
+		'compile_path' => './cache/',//编译文件目录
+		'compile_suffix' => '.php',//编译文件后缀
+
+		'cache_switch' => true,//是否开启静态缓存
+		'cache_path' => './cache/html/',//静态html缓存文件目录
+		'cache_time' => 3600,//静态html缓存时效（单位秒）
+
+		'var_left' => '{{',//模板变量左标记
+		'var_right' => '}}',//模板变量右标记
+		'tag_left' => '<',//模板标签左标记
+		'tag_right' => '>',//模板标签右标记
+	];
 
 	/**
 	 * 构造
@@ -67,7 +72,7 @@ class View
 	}
 
 	/**
-	 * 获取渲染后的模板内容
+	 * 渲染
 	 * User: jiangxijun
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
@@ -76,23 +81,65 @@ class View
 	 */
 	public function make($tpl_name, $tpl_data = [])
 	{
-		$real_filename = $this->_getRealFilename($tpl_name);
-		$cache_file = $this->_options['cache_path'] . md5($tpl_name) . $this->_options['cache_suffix'];
-		if (!file_exists($cache_file) || $this->_options['debug']) {
-			//没有缓存或者是debug模式-重新编译模板
-			$cache_dir = dirname($cache_file);
-			if (!is_dir($cache_dir)) {
-				mkdir($cache_dir, 0777);
-			}
-			// 编译生成缓存
-			$this->_makeCacheFile($cache_file, $real_filename, $tpl_data);
+		$compile_file = $this->_options['compile_path'] . md5(strtolower($tpl_name)) . $this->_options['compile_suffix'];
+		if (false != $this->_options['debug']) {
+			//调试开启
+			//重新编译
+			extract($this->_view_data);
+			$this->_makeCompileFile($compile_file, $tpl_name, $tpl_data);
+			include $compile_file;
 		}
-		//获取缓存文件内容
-		$cache_content = $this->_getCacheContent($cache_file);
-		return $cache_content;
+
+		if (false == $this->_options['debug'] && false != $this->_options['cache_switch']) {
+			//调试未开启并且静态缓存开启
+			$cache_file = $this->_options['cache_path'] . md5(strtolower($tpl_name)) . '.html';
+			if (file_exists($cache_file)) {
+				//静态缓存存在
+				include $cache_file;
+			} else {
+				//静态缓存不存在-生成静态缓存
+
+			}
+		}
 	}
 
-	private function _getRealFilename($tpl_name)
+	private function _makeCompileFile($compile_file, $tpl_name, $tpl_data)
+	{
+		if (!empty($tpl_data)) {
+			$this->_view_data = array_merge($this->_view_data, $tpl_data);
+		}
+		$tpl_real_filename = $this->_getTplRealFileName($tpl_name);//获取真实模板文件名称
+		$tpl_real_content = $this->_getTplRealFileContent($tpl_real_filename);//获取真实模板文件内容
+		$parse_content = $this->_paraseAll($tpl_real_content);//获取真实模板文件内容
+		if (!file_put_contents($compile_file, $parse_content)) {
+			throw new \Exception('编译文件出错' . $compile_file);
+		}
+	}
+
+	private function _paraseAll($tpl_real_content)
+	{
+		//1.去除bom头
+		$parse_content = trim($this->_removeUTF8Bom($tpl_real_content));
+		//2.解析include
+
+		//3.解析变量
+
+//		$parse_content = $this->_parseVarA($parse_content);
+		$parse_content = $this->_parseVar($parse_content);
+
+		return $parse_content;
+	}
+
+
+	/**
+	 * 获取真实文件内容
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $tpl_name
+	 * @return string
+	 */
+	private function _getTplRealFileName($tpl_name)
 	{
 		$app = \likephp\core\Request::getApp();
 		$ctrl = \likephp\core\Request::getCtrl();
@@ -100,52 +147,19 @@ class View
 		if (empty($this->_options['path'])) {
 			$this->_options['path'] = APPS_PATH . $app . '/view/';//默认视图目录
 		}
-		if (file_exists($tpl_name) || false !== strpos($tpl_name, $this->_options['suffix'])) {
+		if (file_exists($tpl_name) || false !== strpos($tpl_name, $this->_options['tpl_suffix'])) {
 			//绝对路径文件或者包含模板后缀
 			$real_filename = $tpl_name;
 		} else if (is_null($tpl_name)) {
-			$real_filename = $this->_options['path'] . strtolower($ctrl . DS . $action) . $this->_options['suffix'];
+			$real_filename = $this->_options['path'] . strtolower($ctrl . DS . $action) . $this->_options['tpl_suffix'];
 		} else if (false !== strpos($tpl_name, '/')) {
 			//如果包含系统路径
-			$real_filename = $this->_options['path'] . strtolower($tpl_name) . $this->_options['suffix'];
+			$real_filename = $this->_options['path'] . strtolower($tpl_name) . $this->_options['tpl_suffix'];
 		} else {
 			//仅写action
-			$real_filename = $this->_options['path'] . strtolower($ctrl . DS . $tpl_name) . $this->_options['suffix'];
+			$real_filename = $this->_options['path'] . strtolower($ctrl . DS . $tpl_name) . $this->_options['tpl_suffix'];
 		}
 		return $real_filename;
-	}
-
-	/**
-	 * 获取缓存文件内容
-	 * User: jiangxijun
-	 * Email: jiang818@qq.com
-	 * Qq: 263088049
-	 * @param $cache_file
-	 * @return bool|string
-	 */
-	private function _getCacheContent($cache_file)
-	{
-		$content = file_get_contents($cache_file);
-		return $content;
-	}
-
-	/**
-	 * 生成缓存文件
-	 * User: jiangxijun
-	 * Email: jiang818@qq.com
-	 * Qq: 263088049
-	 * @param $tpl_name
-	 * @param $tpl_data
-	 */
-	private function _makeCacheFile($cache_file, $real_filename, $tpl_data)
-	{
-		if (!empty($tpl_data)) {
-			$this->_view_data = array_merge($this->_view_data, $tpl_data);
-		}
-		$tpl_content = $this->_getTplContent($real_filename);
-		//模板解析
-		$result = $this->_compile($tpl_content);
-		file_put_contents($cache_file, $result);
 	}
 
 	/**
@@ -157,42 +171,13 @@ class View
 	 * @return bool|string
 	 * @throws \Exception
 	 */
-	private function _getTplContent($real_filename)
+	private function _getTplRealFileContent($tpl_real_filename)
 	{
-		if (is_file($real_filename)) {
-			return file_get_contents($real_filename);
+		if (is_file($tpl_real_filename)) {
+			return file_get_contents($tpl_real_filename);
 		} else {
-			throw new \Exception('模板文件不存在' . $real_filename);
+			throw new \Exception('模板文件不存在' . $tpl_real_filename);
 		}
-	}
-
-	/**
-	 * 解析
-	 * User: jiangxijun
-	 * Email: jiang818@qq.com
-	 * Qq: 263088049
-	 * @param $tpl_content
-	 * @return string
-	 */
-	private function _compile($tpl_content)
-	{
-		$content = trim($this->_removeUTF8Bom($tpl_content));
-		$parse_include_content = $this->_makeInclude($content);
-//		$content = preg_replace_callback('/' . $this->_options['tag_left'] . 'literal' . $this->_options['tag_right'] . '(.*?)' . $this->_options['tag_left'] . '\/literal' . $this->_options['tag_right'] . '/is', [$this, 'parseLiteral'], $content);
-		$parse_content = $this->_compileVar($parse_include_content);
-		return $parse_content;
-	}
-
-	private function _compileVar(&$content)
-	{
-		$content = preg_replace_callback('/(' . $this->_options['tag_left'] . ')([^\d\s].+?)(' . $this->_options['tag_right'] . ')/is', [$this, 'parseTag'], $content);
-		return $content;
-	}
-
-	private function parseTag($content)
-	{
-		$content = preg_replace_callback('/\$\w+((\.\w+)*)?/', [$this, 'parseVar'], stripslashes($content[0]));
-		return $content;
 	}
 
 	/**
@@ -207,42 +192,41 @@ class View
 		return $parse_content;
 	}
 
-	private function _makeInclude($content)
+	private function _parseVarA($parse_content)
 	{
-		$pattern = '/' . $this->_options['tag_left'] . 'include\sfile=[\'"](.+?)[\'"]\s*?\/' . $this->_options['tag_right'] . '/is';
-		$parse_content = empty($content) ? '' : preg_replace_callback($pattern, [$this, '_parseInclude'], $content);
-		return $parse_content;
-	}
 
-	private function _parseInclude($content)
-	{
-		$tpl_name = stripslashes($content[1]);
-		$real_filename = $this->_getRealFilename($tpl_name);
-		$content = $this->_getTplContent($real_filename);
-		$parse_content = $this->_compile($content);
-		return $parse_content;
-	}
-
-	private $_literal = [];
-
-	/**
-	 * 替换页面中的literal标签
-	 *
-	 * @access private
-	 * @param string $content 模板内容
-	 * @return string|false
-	 */
-	private function parseLiteral($content)
-	{
-		if (is_array($content)) {
-			$content = $content[2];
+		$pattern = '/' . $this->_options['var_left'] . '\s*\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\s*' . $this->_options['var_right'] . '/i';
+		if (preg_match($pattern, $parse_content)) {
+			$parse_content = preg_replace_callback($pattern, '<?php echo \$this->_view_data["$1"];?>', $parse_content);
 		}
-		if (trim($content) == '') {
+		return $parse_content;
+	}
+
+	private function _parseVar($parse_content)
+	{
+
+		$pattern_dot = '/\$\w+((\.\w+)*)?/i';
+		if (preg_match($pattern_dot, $parse_content)) {
+			$parse_content = preg_replace_callback($pattern_dot, [$this, 'parseVarDot'], stripslashes($parse_content));
+		}
+		$pattern = '/' . $this->_options['var_left'] . '\s?(\$[^\d\s]*)' . $this->_options['var_right'] . '/i';
+		if (preg_match($pattern, $parse_content)) {
+			$parse_content = preg_replace($pattern, '<?php echo ($1);?>', $parse_content);
+		}
+		return $parse_content;
+
+	}
+
+	private function parseVarDot($var)
+	{
+		if (empty($var[0])) {
 			return '';
 		}
-		$i = count($this->_literal);
-		$parseStr = "<!--###literal{$i}###-->";
-		$this->_literal[$i] = $content;
-		return $parseStr;
+		$vars = explode('.', $var[0]);
+		$name = array_shift($vars);
+		foreach ($vars as $val) {
+			$name .= '["' . trim($val) . '"]';
+		}
+		return $name;
 	}
 }

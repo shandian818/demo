@@ -6,10 +6,10 @@
 </head>
 <body>
 testAAAAA<br/>
-{{$name}}<br/>
-{{$info['name']}}<br/>
-{{$info['user']['name']}}<br/>
-{{$info.user.name}}<br/>
+<?php echo ($name);?><br/>
+<?php echo ($info['name']);?><br/>
+<?php echo ($info['user']['name']);?><br/>
+<?php echo ($info["user"]["name"]);?><br/>
 <hr/>
 <include file="test" />
 

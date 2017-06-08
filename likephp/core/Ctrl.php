@@ -21,11 +21,19 @@ class Ctrl
 		$view_config = \likephp\core\Config::get('view');
 		$_options = [
 			'debug' => APP_DEBUG,
-			'path' => $view_config['path'],
-			'suffix' => $view_config['suffix'],
-			'cache_suffix' => '.php',
-			'cache_path' => RUNTIME_PATH . 'cache/',
-			'directive_prefix' => 'like-',
+			'tpl_path' => $view_config['tpl_path'],
+			'tpl_suffix' => $view_config['tpl_suffix'],
+			'compile_suffix' => $view_config['compile_suffix'],
+			'compile_path' => RUNTIME_PATH . 'cache/',
+
+			'cache_switch' => true,//是否开启静态缓存
+			'cache_path' => RUNTIME_PATH . 'html/',//静态html缓存文件目录
+			'cache_time' => 3600,//静态html缓存时效（单位秒）
+
+			'var_left' => '{{',//模板变量左标记
+			'var_right' => '}}',//模板变量右标记
+			'tag_left' => '<',//模板标签左标记
+			'tag_right' => '>',//模板标签右标记
 		];
 		$this->_view = new View($_options);
 	}
