@@ -14,6 +14,6 @@ define("APPS_PATH", __DIR__ . "/../apps/");
 //define("BIND_APP", 'index');
 //define("BIND_CTRL", 'index');
 //define("BIND_ACT", 'index');
-define("APP_DEBUG", true);
+define("APP_DEBUG", false);
 //载入框架核心
 require_once __DIR__ . "/../likephp/boot.php";

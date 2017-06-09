@@ -82,31 +82,74 @@ class View
 	public function make($tpl_name, $tpl_data = [])
 	{
 		$compile_file = $this->_options['compile_path'] . md5(strtolower($tpl_name)) . $this->_options['compile_suffix'];
+		extract($this->_view_data);
 		if (false != $this->_options['debug']) {
 			//调试开启
 			//重新编译
-			extract($this->_view_data);
 			$this->_makeCompileFile($compile_file, $tpl_name, $tpl_data);
-			try {
-				require_once $compile_file;
-			} catch (\Exception $e) {
-
-			}
+			require_once $compile_file;
 		}
-
 		if (false == $this->_options['debug'] && false != $this->_options['cache_switch']) {
 			//调试未开启并且静态缓存开启
 			$cache_file = $this->_options['cache_path'] . md5(strtolower($tpl_name)) . '.html';
-			if (file_exists($cache_file)) {
+			$now_time = time();
+			if (file_exists($cache_file) && $now_time - filemtime($cache_file) <= $this->_options['cache_time']) {
 				//静态缓存存在
 				include $cache_file;
 			} else {
 				//静态缓存不存在-生成静态缓存
-
+				if (!file_exists($compile_file)) {
+					$this->_makeCompileFile($compile_file, $tpl_name, $tpl_data);
+				}
+				require_once $compile_file;
+				$cache_content = ob_get_contents();
+				$this->_makeCacheFile($cache_file, $cache_content);
 			}
 		}
 	}
 
+	/**
+	 * 生成缓存文件
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $cache_file
+	 * @param $cache_content
+	 * @throws \Exception
+	 */
+	private function _makeCacheFile($cache_file, $cache_content)
+	{
+		$this->_createDir($cache_file);
+		if (!file_put_contents($cache_file, $cache_content)) {
+			throw new \Exception('生成缓存文件出错' . $cache_file);
+		}
+	}
+
+	/**
+	 * 根据文件创建目录
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $file
+	 */
+	private function _createDir($file)
+	{
+		$dir = dirname($file);
+		if (!is_dir($dir)) {
+			mkdir($dir, 0777);
+		}
+	}
+
+	/**
+	 * 生成编译文件
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $compile_file
+	 * @param $tpl_name
+	 * @param $tpl_data
+	 * @throws \Exception
+	 */
 	private function _makeCompileFile($compile_file, $tpl_name, $tpl_data)
 	{
 		if (!empty($tpl_data)) {
@@ -115,11 +158,20 @@ class View
 		$tpl_real_filename = $this->_getTplRealFileName($tpl_name);//获取真实模板文件名称
 		$tpl_real_content = $this->_getTplRealFileContent($tpl_real_filename);//获取真实模板文件内容
 		$parse_content = $this->_paraseAll($tpl_real_content);//获取真实模板文件内容
+		$this->_createDir($compile_file);
 		if (!file_put_contents($compile_file, $parse_content)) {
-			throw new \Exception('编译文件出错' . $compile_file);
+			throw new \Exception('生成编译文件出错' . $compile_file);
 		}
 	}
 
+	/**
+	 * 解析所有
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $tpl_real_content
+	 * @return mixed|string
+	 */
 	private function _paraseAll($tpl_real_content)
 	{
 		//1.去除bom头
@@ -127,7 +179,7 @@ class View
 		//2.解析include
 		$parse_content = $this->_parseInculde($parse_content);
 		//3.解析标签
-
+		$parse_content = $this->_parseTag($parse_content);
 		//4.解析变量
 		$parse_content = $this->_parseVar($parse_content);
 
@@ -220,7 +272,6 @@ class View
 
 	}
 
-
 	/**
 	 * 解析include标签
 	 * User: jiangxijun
@@ -231,12 +282,10 @@ class View
 	 */
 	private function _parseInculde($parse_content)
 	{
-
-		$pattern = '/' . $this->_options['tag_left'] . '\s*include\s*file=[\'"](.+?)[\'"]\s*\/' . $this->_options['tag_right'] . '/is';
+		$pattern = '/' . $this->_options['tag_left'] . '\s*include\s*file=[\'"](.+?)[\'"]\s*\/*' . $this->_options['tag_right'] . '/is';
 		if (preg_match($pattern, $parse_content)) {
 			$parse_content = preg_replace_callback($pattern, [$this, '_parseIncludeFile'], $parse_content);
 		}
-
 		return $parse_content;
 
 	}
@@ -276,5 +325,73 @@ class View
 			$name .= '["' . trim($val) . '"]';
 		}
 		return $name;
+	}
+
+	/**
+	 * 解析标签
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $parse_content
+	 * @return mixed
+	 */
+	private function _parseTag($parse_content)
+	{
+		$tag_data = $this->_getTagData();
+		foreach ($tag_data as $tag_info) {
+			if (preg_match($tag_info[0], $parse_content)) {
+				$parse_content = preg_replace($tag_info[0], $tag_info[1], $parse_content);
+			}
+		}
+		return $parse_content;
+	}
+
+	/**
+	 * 获取解析标签数据
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @return array
+	 */
+	private function _getTagData()
+	{
+		$tag_data = [
+			//php开始
+			[
+				'/' . $this->_options['tag_left'] . '\s*php\s*' . $this->_options['tag_right'] . '/is',
+				'<?php ',
+			],
+			//php结束
+			[
+				'/' . $this->_options['tag_left'] . '\s*\/php\s*' . $this->_options['tag_right'] . '/is',
+				'?>',
+			],
+			//if开始
+			[
+				'/' . $this->_options['tag_left'] . '\s*if\s*(.*?)\s*' . $this->_options['tag_right'] . '/is',
+				'<?php if ($1) {?>',
+			],
+			//else
+			[
+				'/' . $this->_options['tag_left'] . '\s*else\s*\/\s*' . $this->_options['tag_right'] . '/is',
+				'<?php }else {?>',
+			],
+			//foreach和if结束
+			[
+				'/' . $this->_options['tag_left'] . '\s*\/(foreach|if)\s*' . $this->_options['tag_right'] . '/is',
+				'<?php }?>',
+			],
+			//elseif
+			[
+				'/' . $this->_options['tag_left'] . '\s*(else\s*if|elseif)\s*(.*?)\s*' . $this->_options['tag_right'] . '/is',
+				'<?php } else if ($2) {?>',
+			],
+			//foreach
+			[
+				'/' . $this->_options['tag_left'] . '\s*foreach\s*(.*?)\s*' . $this->_options['tag_right'] . '/is',
+				'<?php foreach ($1) { ?>',
+			],
+		];
+		return $tag_data;
 	}
 }

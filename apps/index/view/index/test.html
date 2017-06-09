@@ -1,1 +1,11 @@
 <b>{{$info['user']['name']}}</b>
+<php>echo '我我我';</php>
+<if !empty($info.user.name)>
+显示<b>{{$info['user']['name']}}</b>
+<else/>
+    ads
+</if>
+<hr>
+<foreach $_SERVER as $v>
+    {{$v}}<br>
+</foreach>
