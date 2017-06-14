@@ -34,6 +34,7 @@ class Error
 	 */
 	public static function appError($errno, $errstr, $errfile, $errline, $errcontext)
 	{
+		ob_start();
 		ob_clean();
 		$_html = '<b>出错啦!</b>';
 		$_html .= '<p>' . $errstr . '</p>';
@@ -51,6 +52,7 @@ class Error
 	 */
 	public static function appException($e)
 	{
+		ob_start();
 		ob_clean();
 		$_html = '<b>异常啦!</b>';
 		$_html .= '<p>' . $e->getMessage() . '</p>';
