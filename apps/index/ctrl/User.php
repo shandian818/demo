@@ -11,20 +11,20 @@
 namespace apps\index\ctrl;
 
 
-class User
+use likephp\core\Ctrl;
+
+class User extends Ctrl
 {
 	public function index()
 	{
 		echo 'user-index';
 	}
 
-	public function list()
-	{
-		echo 'user-list';
-	}
 
-	public function add()
+	public function test()
 	{
-		echo 'user-add';
+		$this->assign('name', '名字uuuuuu');
+		$this->assign('info', ['name' => '替uuuuuuuuu换', 'user' => ['name' => 'uuuuuuinfo的uuuuuuuser的name']]);
+		$this->Render('testA');
 	}
 }

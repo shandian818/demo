@@ -29,7 +29,7 @@ return [
 
 		'cache_switch' => true,//是否开启静态缓存
 		'cache_path' => RUNTIME_PATH . 'cache/html/',//静态html缓存文件目录
-		'cache_time' => 1,//静态html缓存时效（单位秒）
+		'cache_time' => 60,//静态html缓存时效（单位秒）
 
 		'var_left' => '{{',//模板变量左标记
 		'var_right' => '}}',//模板变量右标记

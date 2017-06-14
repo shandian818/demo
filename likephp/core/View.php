@@ -81,26 +81,25 @@ class View
 	 */
 	public function make($tpl_name, $tpl_data = [])
 	{
-		$compile_file = $this->_options['compile_path'] . md5(strtolower($tpl_name)) . $this->_options['compile_suffix'];
+		$tpl_real_filename = $this->_getTplRealFileName($tpl_name);//获取真实模板文件名称
+		$compile_file = $this->_options['compile_path'] . md5(strtolower($tpl_real_filename)) . $this->_options['compile_suffix'];
 		extract($this->_view_data);
 		if (false != $this->_options['debug']) {
 			//调试开启
 			//重新编译
-			$this->_makeCompileFile($compile_file, $tpl_name, $tpl_data);
+			$this->_makeCompileFile($compile_file, $tpl_real_filename, $tpl_data);
 			require_once $compile_file;
 		}
 		if (false == $this->_options['debug'] && false != $this->_options['cache_switch']) {
 			//调试未开启并且静态缓存开启
-			$cache_file = $this->_options['cache_path'] . md5(strtolower($tpl_name)) . '.html';
+			$cache_file = $this->_options['cache_path'] . md5(strtolower($tpl_real_filename)) . '.html';
 			$now_time = time();
 			if (file_exists($cache_file) && $now_time - filemtime($cache_file) <= $this->_options['cache_time']) {
 				//静态缓存存在
 				include $cache_file;
 			} else {
-				//静态缓存不存在-生成静态缓存
-				if (!file_exists($compile_file)) {
-					$this->_makeCompileFile($compile_file, $tpl_name, $tpl_data);
-				}
+				$this->_makeCompileFile($compile_file, $tpl_real_filename, $tpl_data);
+				ob_start();
 				require_once $compile_file;
 				$cache_content = ob_get_contents();
 				$this->_makeCacheFile($cache_file, $cache_content);
@@ -146,20 +145,24 @@ class View
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
 	 * @param $compile_file
-	 * @param $tpl_name
+	 * @param $tpl_real_filename
 	 * @param $tpl_data
 	 * @throws \Exception
 	 */
-	private function _makeCompileFile($compile_file, $tpl_name, $tpl_data)
+	private function _makeCompileFile($compile_file, $tpl_real_filename, $tpl_data)
 	{
 		if (!empty($tpl_data)) {
 			$this->_view_data = array_merge($this->_view_data, $tpl_data);
 		}
-		$tpl_real_filename = $this->_getTplRealFileName($tpl_name);//获取真实模板文件名称
 		$tpl_real_content = $this->_getTplRealFileContent($tpl_real_filename);//获取真实模板文件内容
+		$time = date('Y-m-d H:i:s', time());
+		$version_content = "<!-- 页面由 likephp 生成于$time -->\n";
+		if (false != $this->_options['debug']) {
+			$version_content .= "<!-- 原页面路径:$tpl_real_filename -->\n";
+		}
 		$parse_content = $this->_paraseAll($tpl_real_content);//获取真实模板文件内容
 		$this->_createDir($compile_file);
-		if (!file_put_contents($compile_file, $parse_content)) {
+		if (!file_put_contents($compile_file, $version_content . $parse_content . "\n" . $version_content)) {
 			throw new \Exception('生成编译文件出错' . $compile_file);
 		}
 	}
@@ -215,7 +218,11 @@ class View
 			//仅写action
 			$real_filename = $this->_options['path'] . strtolower($ctrl . DS . $tpl_name) . $this->_options['tpl_suffix'];
 		}
-		return $real_filename;
+		if (is_file($real_filename)) {
+			return realpath($real_filename);
+		} else {
+			throw new \Exception('模板文件不存在' . $real_filename);
+		}
 	}
 
 	/**

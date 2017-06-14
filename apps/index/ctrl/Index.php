@@ -30,4 +30,11 @@ class Index extends Ctrl
 		$this->assign('info', ['name' => '替换', 'user' => ['name' => 'info的user的name']]);
 		$this->Render('testA');
 	}
+
+	public function testb()
+	{
+		$this->assign('name', '名字aaaaa');
+		$this->assign('info', ['name' => '替换aaaaaa', 'user' => ['name' => 'info的user的name']]);
+		$this->Render('testA');
+	}
 }
