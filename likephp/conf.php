@@ -37,12 +37,19 @@ return [
 		'tag_right' => '>',//模板标签右标记
 	],
 	//pathinfo配置
-
 	'pathinfo' => [
 		'var' => 'url',
 		'fetch' => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
 		'depr' => '/',
-	]
+	],
+	//db配置
+	'db' => [
+		'dbhost'=>'127.0.0.1',
+		'dbport'=>'3306',
+		'dbuser'=>'root',
+		'dbpass'=>'root',
+		'dbname'=>'test',
+	],
 
 
 ];
