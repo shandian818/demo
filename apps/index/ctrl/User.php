@@ -25,6 +25,6 @@ class User extends Ctrl
 	{
 		$this->assign('name', '名字uuuuuu');
 		$this->assign('info', ['name' => '替uuuuuuuuu换', 'user' => ['name' => 'uuuuuuinfo的uuuuuuuser的name']]);
-		$this->Render('testA');
+		$this->Render('testview');
 	}
 }

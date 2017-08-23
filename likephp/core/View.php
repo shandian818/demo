@@ -135,7 +135,7 @@ class View
 	{
 		$dir = dirname($file);
 		if (!is_dir($dir)) {
-			mkdir($dir, 0777);
+			mkdir($dir, 0775, true);
 		}
 	}
 
@@ -196,7 +196,8 @@ class View
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
 	 * @param $tpl_name
-	 * @return string
+	 * @return bool|string
+	 * @throws \Exception
 	 */
 	private function _getTplRealFileName($tpl_name)
 	{
