@@ -11,17 +11,20 @@
 
 namespace apps\index\ctrl;
 
+use apps\index\model\UserModel;
 use likephp\core\Ctrl;
 
 class Index extends Ctrl
 {
 	public function index()
 	{
-		dump($_GET);
-		dump($_SERVER);
-		dumpc($_GET);
-		dumpc($_SERVER);
-		echo 'Index/index';
+//		dump($_GET);
+//		dump($_SERVER);
+//		dumpc($_GET);
+//		dumpc($_SERVER);
+//		echo 'Index/index';
+		$user_model = new UserModel();
+		$user_model->where('1=1')
 	}
 
 	public function test()

@@ -55,4 +55,8 @@ class Model
 		}
 		return $this;
 	}
+
+	public function select($fields='*'){
+
+	}
 }
