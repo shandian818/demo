@@ -42,10 +42,11 @@ class Index extends Ctrl
 //		dump($database->last());
 
 		$user_model = new UserModel();
-		dump($user_model);
-//		$list = $user_model->where('uid>1')->field('uid,uname,unick')->select();
+//		dump($user_model);
+		$list = $user_model->where('uid>1')->field('uid,uname,unick')->select();
 //		$list = $user_model->where([])->field('a,b,c')->select();
-//		dump($list);
+		dump($list);
+
 	}
 
 	public function test()

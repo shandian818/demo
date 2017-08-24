@@ -49,6 +49,7 @@ return [
 		'dbuser'=>'root',
 		'dbpass'=>'root',
 		'dbname'=>'test',
+		'dbpre'=>'like_',
 	],
 
 
