@@ -13,18 +13,39 @@ namespace apps\index\ctrl;
 
 use apps\index\model\UserModel;
 use likephp\core\Ctrl;
+use Medoo\Medoo;
 
 class Index extends Ctrl
 {
 	public function index()
 	{
-//		dump($_GET);
-//		dump($_SERVER);
-//		dumpc($_GET);
-//		dumpc($_SERVER);
-//		echo 'Index/index';
+
+//		$database = new Medoo([
+//			'database_type' => 'mysql',
+//			'database_name' => 'test',
+//			'server' => 'localhost',
+//			'username' => 'root',
+//			'password' => 'root',
+//			'charset' => 'utf8'
+//		]);
+////		dump($database);
+//		$a= $database->select("like_user",['uid','uname'], [
+//			"OR" => [
+//				"AND" => [
+//					"uid[>=]" => "3",
+//					"uid[<]" => "5"
+//				],
+//				"uname" => "foo"
+//			]
+//		]);
+//		dump($a);
+//		dump($database->last());
+
 		$user_model = new UserModel();
-		$user_model->where('1=1')
+		dump($user_model);
+//		$list = $user_model->where('uid>1')->field('uid,uname,unick')->select();
+//		$list = $user_model->where([])->field('a,b,c')->select();
+//		dump($list);
 	}
 
 	public function test()
