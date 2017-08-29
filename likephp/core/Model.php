@@ -16,45 +16,65 @@ class Model
 	public $model_name;//模型名称
 	public $real_tabale_name;//真实表名
 	public $db_name;//库名
-	private $_tabale_prefix;//表前缀
-	private $_db;//数据库实例
-	private $_db_objs = [];//数据库实例
+	protected $_tabale_prefix;//表前缀
+	protected $_db;//数据库实例
+	protected $_db_objs = [];//数据库实例
 	//存放sql每段数据
-	private $_data = [
-		'where' => null,
-		'field' => null,
-
+	protected $_data_array = [
 	];
+	//存放sql每段语句
+	protected $_sql_array = [
+	];
+
+	protected $_sql;
 
 	public function __construct($model_name = '', $table_prefix = '', $db_config = null)
 	{
-		$this->_db = $this->getDb($db_config);
+		$this->getDb($db_config);
+		$this->_getModelName($model_name);
+		$this->_getTablePrefix($table_prefix);
+		$this->getRealTableName();
 
 
 	}
 
-	public function getRealTableName()
+	/**
+	 * 获取真实表名
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @return string
+	 */
+	private function getRealTableName()
 	{
-		if (empty($this->real_tabale_name)) {
-			$tableName = !empty($this->_tabale_prefix) ? $this->_tabale_prefix : '';
-			if (!empty($this->tableName)) {
-				$tableName .= $this->tableName;
-			} else {
-				$tableName .= parse_name($this->model_name);
-			}
-			$this->trueTableName = strtolower($tableName);
+		if (empty($this->real_tabale_name) && !empty($this->model_name)) {
+			$this->real_tabale_name = (!empty($this->db_name) ? $this->db_name . '.' : '') . $this->_tabale_prefix . strtolower($this->model_name);
 		}
-		return (!empty($this->dbName) ? $this->dbName . '.' : '') . $this->trueTableName;
+		return $this->real_tabale_name;
 	}
 
-	private function _getTablePrefix($table_prefix)
+	/**
+	 * 获取表前缀
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $table_prefix
+	 */
+	protected function _getTablePrefix($table_prefix)
 	{
 		if (!empty($table_prefix)) {
 			$this->_tabale_prefix = $table_prefix;
 		}
 	}
 
-	private function _getModelName($model_name)
+	/**
+	 * 获取模型名
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $model_name
+	 */
+	protected function _getModelName($model_name)
 	{
 		if (empty($model_name)) {
 			$this->model_name = $this->_getModelNameByClassName();
@@ -63,7 +83,14 @@ class Model
 		}
 	}
 
-	private function _getModelNameByClassName()
+	/**
+	 * 根据类名获取模型名
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @return bool|string
+	 */
+	protected function _getModelNameByClassName()
 	{
 		$name = substr(get_class($this), 0, -strlen('Model'));
 		if ($pos = strrpos($name, '\\')) {
@@ -72,7 +99,15 @@ class Model
 		return $name;
 	}
 
-	public function getDb($db_config = null)
+	/**
+	 * 获取db对象
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param null $db_config
+	 * @return mixed|\PDO
+	 */
+	protected function getDb($db_config = null)
 	{
 		if (empty($db_config)) {
 			$db_config = Config::get('db');
@@ -100,41 +135,51 @@ class Model
 			);
 			$this->_db_objs[$connection_id] = $db;
 		}
+		$this->_db = $db;
 		return $db;
 	}
 
-	public function where($where)
-	{
-		if (!empty($where)) {
-			$this->_data['where'] = $where;
-		}
-		return $this;
-	}
+	/**
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $where
+	 * @return $this
+	 */
+//	public function where($where)
+//	{
+//		if (!empty($where)) {
+//			$this->_data_array['where'] = $where;
+//		}
+//		return $this;
+//	}
 
-	public function field($field)
-	{
-		if (!empty($field)) {
-			$this->_data['field'] = $field;
-		}
-		return $this;
-	}
+//	public function field($field)
+//	{
+//		if (!empty($field)) {
+//			$this->_data_array['field'] = $field;
+//		}
+//		return $this;
+//	}
 
 	public function select()
 	{
-		$sql = 'SELECT ';
-		$sql .= $this->_parseField();
-		$sql .= $this->_parseWhere();
+		$sql = $this->_parseAll();
+		$sth = $this->_db->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+		$sth->execute(array(':calories' => 150, ':colour' => 'red'));
+		$result = $sth->fetchAll();
+		return $result;
 	}
 
 	private function _parseWhere()
 	{
 		$where_sql = '';
-		if (!empty($this->_data['where'])) {
+		if (!empty($this->_data_array['where'])) {
 			$where_sql .= ' WHERE ';
-			if (is_array($this->_data['where'])) {
+			if (is_array($this->_data_array['where'])) {
 
-			} else if (is_string($this->_data['where'])) {
-				$where_sql .= $this->_data['where'];
+			} else if (is_string($this->_data_array['where'])) {
+				$where_sql .= $this->_data_array['where'];
 			}
 		}
 		return $where_sql;
@@ -143,26 +188,131 @@ class Model
 	private function _parseField()
 	{
 		$field_sql = '';
-		if (!empty($this->_data['field'])) {
-			if (is_array($this->_data['field'])) {
-				$field_sql .= implode(', ', $this->_data['field']);
-			} else if (is_string($this->_data['field'])) {
-				$field_sql .= $this->_data['field'];
+		if (!empty($this->_data_array['field'])) {
+			if (is_array($this->_data_array['field'])) {
+				$field_sql .= implode(', ', $this->_data_array['field']);
+			} else if (is_string($this->_data_array['field'])) {
+				$field_sql .= $this->_data_array['field'];
 			}
 		}
 		return $field_sql;
 	}
 
-	public function __call($name, $arguments)
+	private function _parseOrder()
 	{
-		// TODO: Implement __call() method.
-		dump($name);
-		dump($arguments);
-		return $this;
+		$field_sql = '';
+		if (!empty($this->_data_array['order'])) {
+			$field_sql .= ' ORDER BY ' . $this->_data_array['order'];
+		}
+		return $field_sql;
 	}
 
-//	public function select($fields = '*')
-//	{
-//
-//	}
+	private function _parseTable()
+	{
+		if (!empty($this->real_tabale_name)) {
+			$real_tabale_name = $this->real_tabale_name;
+		} else if (!empty($this->_data_array['table'])) {
+			$real_tabale_name = (!empty($this->db_name) ? $this->db_name . '.' : '') . $this->_tabale_prefix . strtolower($this->_data_array['table']);
+		} else {
+			$real_tabale_name = null;
+		}
+		return $real_tabale_name;
+	}
+
+	public function getLastSql()
+	{
+
+		return $this->_sql;
+	}
+
+	public function __call($method, $args)
+	{
+		$methods = ['table', 'where', 'order', 'comment', 'having', 'group', 'field'];
+		if (in_array(strtolower($method), $methods)) {
+			$this->_data_array[strtolower($method)] = $args[0];
+			return $this;
+		} else if (in_array(strtolower($method), ['count', 'sum', 'min', 'max', 'avg'])) {
+			// 统计查询的实现
+			$field = isset($args[0]) ? $args[0] : '*';
+			$method_sql = strtoupper($method) . '(' . $field . ') AS like_' . $method;
+			$this->_sql_array['field'] = $method_sql . $this->_sql_array[strtolower($method)];
+		} else {
+			throw new \Exception('调用方法不存在');//待完善
+		}
+	}
+
+	private function _parseJoin()
+	{
+		$join_sql = '';
+		if (!empty($this->_data_array['join'])) {
+			$join_sql .= $this->_data_array['join'];
+		}
+		return $join_sql;
+	}
+
+	private function _parseLimit()
+	{
+		$limit_sql = '';
+		if (!empty($this->_data_array['limit'])) {
+			$limit_sql .= 'LIMIT ' . $this->_data_array['limit'];
+		}
+		return $limit_sql;
+	}
+
+	private function _parseGroup()
+	{
+		$group_sql = '';
+		if (!empty($this->_data_array['group'])) {
+			$group_sql .= ' GROUP BY ' . $this->_data_array['group'];
+		}
+		return $group_sql;
+	}
+
+	private function _parseHaving()
+	{
+		$having_sql = '';
+		if (!empty($this->_data_array['having'])) {
+			$having_sql .= ' HAVING ' . $this->_data_array['having'];
+		}
+		return $having_sql;
+	}
+
+	private function _parseComment()
+	{
+		$comment_sql = '';
+		if (!empty($this->_data_array['comment'])) {
+			$comment_sql .= '/*   ' . $this->_data_array['comment'] . '   */';
+		}
+		return $comment_sql;
+	}
+
+	private function _parseAll()
+	{
+		$selectSql = 'SELECT %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %COMMENT%';
+		$sql = str_replace(
+			[
+				'%TABLE%',
+				'%FIELD%',
+				'%JOIN%',
+				'%WHERE%',
+				'%GROUP%',
+				'%HAVING%',
+				'%ORDER%',
+				'%LIMIT%',
+				'%COMMENT%'
+			],
+			[
+				$this->_parseTable(),
+				$this->_parseField(),
+				$this->_parseJoin(),
+				$this->_parseWhere(),
+				$this->_parseGroup(),
+				$this->_parseHaving(),
+				$this->_parseOrder(),
+				$this->_parseLimit(),
+				$this->_parseComment()
+			], $selectSql);
+		$this->_sql = $sql;
+		return $sql;
+	}
 }
