@@ -139,29 +139,6 @@ class Model
 		return $db;
 	}
 
-	/**
-	 * User: jiangxijun
-	 * Email: jiang818@qq.com
-	 * Qq: 263088049
-	 * @param $where
-	 * @return $this
-	 */
-//	public function where($where)
-//	{
-//		if (!empty($where)) {
-//			$this->_data_array['where'] = $where;
-//		}
-//		return $this;
-//	}
-
-//	public function field($field)
-//	{
-//		if (!empty($field)) {
-//			$this->_data_array['field'] = $field;
-//		}
-//		return $this;
-//	}
-
 	public function select()
 	{
 		$sql = $this->_parseAll();
@@ -177,12 +154,31 @@ class Model
 		if (!empty($this->_data_array['where'])) {
 			$where_sql .= ' WHERE ';
 			if (is_array($this->_data_array['where'])) {
+				$where = $this->_data_array['where'];
+				$where_keys = array_keys($where);
+				$where_AND = preg_grep("/^AND\s*#?$/i", $where_keys);
+				$where_OR = preg_grep("/^OR\s*#?$/i", $where_keys);
+				$map=[];
+				if (!empty($where_AND))
+				{
+					$value = array_values($where_AND);
+					$where_clause = ' WHERE ' . $this->dataImplode($where[ $value[ 0 ] ], $map, ' AND');
+				}
 
+				if (!empty($where_OR))
+				{
+					$value = array_values($where_OR);
+					$where_clause = ' WHERE ' . $this->dataImplode($where[ $value[ 0 ] ], $map, ' OR');
+				}
 			} else if (is_string($this->_data_array['where'])) {
 				$where_sql .= $this->_data_array['where'];
 			}
 		}
 		return $where_sql;
+	}
+
+	private function dataImplode($a,$b=null,$c){
+
 	}
 
 	private function _parseField()
