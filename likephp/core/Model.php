@@ -156,19 +156,26 @@ class Model
 			if (is_array($this->_data_array['where'])) {
 				$where = $this->_data_array['where'];
 				$where_keys = array_keys($where);
+				$single_condition = array_diff_key($where, array_flip(
+					['AND', 'OR']
+				));
+
+				if (!empty($single_condition)) {
+					$condition = $this->_getWhereFieldString($single_condition, ' AND');
+
+					if ($condition !== '') {
+						$where_sql .= $condition;
+					}
+				}
 				$where_AND = preg_grep("/^AND\s*#?$/i", $where_keys);
 				$where_OR = preg_grep("/^OR\s*#?$/i", $where_keys);
-				$map=[];
-				if (!empty($where_AND))
-				{
+				if (!empty($where_AND)) {
 					$value = array_values($where_AND);
-					$where_clause = ' WHERE ' . $this->dataImplode($where[ $value[ 0 ] ], $map, ' AND');
+					$where_sql .= $this->_getWhereFieldString($where[$value[0]], ' AND');
 				}
-
-				if (!empty($where_OR))
-				{
+				if (!empty($where_OR)) {
 					$value = array_values($where_OR);
-					$where_clause = ' WHERE ' . $this->dataImplode($where[ $value[ 0 ] ], $map, ' OR');
+					$where_sql .= $this->_getWhereFieldString($where[$value[0]], ' OR');
 				}
 			} else if (is_string($this->_data_array['where'])) {
 				$where_sql .= $this->_data_array['where'];
@@ -177,11 +184,139 @@ class Model
 		return $where_sql;
 	}
 
-	private function dataImplode($a,$b=null,$c){
+	private function _addQuote($value)
+	{
 
+		if (is_array($value)) {
+			$string = '';
+			foreach ($value as $v) {
+				$string .= $this->_addQuote($v);
+			}
+			return $string;
+		} else {
+			if (is_int($value)) {
+				return (int)$value;
+			} else {
+				return '"' . $value . '"';
+			}
+		}
 	}
 
-	private function _parseField()
+	private function _getWhereFieldString($data, $rel)
+	{
+		$where_array = [];
+		foreach ($data as $key => $value) {
+			$type = gettype($value);
+			if (preg_match("/^(AND|OR)(\s+#.*)?$/i", $key, $relation_match) && $type === 'array') {
+				$where_array[] = '(' . $this->_getWhereFieldString($value, ' ' . $relation_match[1]) . ')';
+			} else {
+//				if (is_int($key) && preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>|\>\=|\<|\<\=|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)) {
+//					$wheres[] = $this->columnQuote($match[1]) . ' ' . $match['operator'] . ' ' . $this->columnQuote($match[3]);
+//				} else {
+				preg_match('/(#?)([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+				$field = $match[2];
+				if (isset($match['operator'])) {
+					$operator = $match['operator'];
+
+					if ($operator === '!') {
+						switch ($type) {
+							case 'NULL':
+								$where_array[] = $field . ' IS NOT NULL';
+								break;
+
+							case 'array':
+								$where_array[] = $field . ' NOT IN (' . implode(',', $value) . ')';
+								break;
+
+							case 'integer':
+							case 'double':
+								$where_array[] = $field . ' != ' . $value;
+								break;
+							case 'string':
+								$where_array[] = $field . ' != "' . $value . '"';
+								break;
+						}
+					}
+
+					if ($operator === '<>' || $operator === '><') {
+						if ($type === 'array') {
+							if ($operator === '><') {
+								$field .= ' NOT';
+							}
+
+							$where_array[] = '(' . $field . ' BETWEEN ' . $value[0] . ' AND ' . $value[1] . ')';
+
+						}
+					}
+
+					if ($operator === '~' || $operator === '!~') {
+						if ($type !== 'array') {
+							$value = [$value];
+						}
+
+						$connector = ' OR ';
+						$stack = array_values($value);
+
+						if (is_array($stack[0])) {
+							if (isset($value['AND']) || isset($value['OR'])) {
+								$connector = ' ' . array_keys($value)[0] . ' ';
+								$value = $stack[0];
+							}
+						}
+
+						$like_array = [];
+
+						foreach ($value as $index => $item) {
+							$item = strval($item);
+
+							if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item)) {
+								$item = "'%" . $item . "%'";
+							}
+
+							$like_array[] = $field . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $item;
+						}
+
+						$where_array[] = '(' . implode($connector, $like_array) . ')';
+					}
+
+					if (in_array($operator, ['>', '>=', '<', '<='])) {
+						$condition = $field . ' ' . $operator . ' ';
+
+						if (is_numeric($value)) {
+							$condition .= $value;
+						} else {
+							$condition .= $value;
+						}
+
+						$where_array[] = $condition;
+					}
+				} else {
+					switch ($type) {
+						case 'NULL':
+							$where_array[] = $field . ' IS NULL';
+							break;
+
+						case 'array':
+							$where_array[] = $field . ' IN (' . implode(',', $value) . ')';
+							break;
+						case 'integer':
+						case 'double':
+							$where_array[] = $field . ' = ' . $value;
+							break;
+						case 'string':
+							$where_array[] = $field . ' = "' . $value . '"';
+							break;
+					}
+				}
+//				}
+			}
+		}
+		$where_sql = implode($rel . ' ', $where_array);
+		return $where_sql;
+	}
+
+	private
+	function _parseField()
 	{
 		$field_sql = '';
 		if (!empty($this->_data_array['field'])) {
@@ -194,7 +329,8 @@ class Model
 		return $field_sql;
 	}
 
-	private function _parseOrder()
+	private
+	function _parseOrder()
 	{
 		$field_sql = '';
 		if (!empty($this->_data_array['order'])) {
@@ -203,7 +339,8 @@ class Model
 		return $field_sql;
 	}
 
-	private function _parseTable()
+	private
+	function _parseTable()
 	{
 		if (!empty($this->real_tabale_name)) {
 			$real_tabale_name = $this->real_tabale_name;
@@ -215,13 +352,15 @@ class Model
 		return $real_tabale_name;
 	}
 
-	public function getLastSql()
+	public
+	function getLastSql()
 	{
 
 		return $this->_sql;
 	}
 
-	public function __call($method, $args)
+	public
+	function __call($method, $args)
 	{
 		$methods = ['table', 'where', 'order', 'comment', 'having', 'group', 'field'];
 		if (in_array(strtolower($method), $methods)) {
@@ -237,7 +376,8 @@ class Model
 		}
 	}
 
-	private function _parseJoin()
+	private
+	function _parseJoin()
 	{
 		$join_sql = '';
 		if (!empty($this->_data_array['join'])) {
@@ -246,7 +386,8 @@ class Model
 		return $join_sql;
 	}
 
-	private function _parseLimit()
+	private
+	function _parseLimit()
 	{
 		$limit_sql = '';
 		if (!empty($this->_data_array['limit'])) {
@@ -255,7 +396,8 @@ class Model
 		return $limit_sql;
 	}
 
-	private function _parseGroup()
+	private
+	function _parseGroup()
 	{
 		$group_sql = '';
 		if (!empty($this->_data_array['group'])) {
@@ -264,7 +406,8 @@ class Model
 		return $group_sql;
 	}
 
-	private function _parseHaving()
+	private
+	function _parseHaving()
 	{
 		$having_sql = '';
 		if (!empty($this->_data_array['having'])) {
@@ -273,7 +416,8 @@ class Model
 		return $having_sql;
 	}
 
-	private function _parseComment()
+	private
+	function _parseComment()
 	{
 		$comment_sql = '';
 		if (!empty($this->_data_array['comment'])) {
@@ -282,7 +426,8 @@ class Model
 		return $comment_sql;
 	}
 
-	private function _parseAll()
+	private
+	function _parseAll()
 	{
 		$selectSql = 'SELECT %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %COMMENT%';
 		$sql = str_replace(
