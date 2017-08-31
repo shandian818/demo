@@ -29,33 +29,48 @@ class Index extends Ctrl
 //			'password' => 'root',
 //			'charset' => 'utf8'
 //		]);
-////		dump($database);
-//		$a= $database->select("like_user",['uid','uname'], [
+//		$a = $database->select("like_user", ['uid', 'uname'], [
 //			"OR" => [
 //				"AND" => [
-//					"uid[>=]" => "3",
-//					"uid[<]" => "5"
+////					"uid[!]" => [1, 2, 3],
+//					"uid[!]" => [1, 2, 3],
 //				],
 //				"uname" => "foo"
 //			]
 //		]);
-//		dump($a);
-//		dump($database->last());
+//		dumpc($a);
+//		dumpc($database->last());exit;
 
-		$user_model = new UserModel();
-//		dump($user_model);
-		$list = $user_model->where('uid>1')->field('uid,uname,unick')->group('status')->order('uid DESC')->select();
-//		$list = $user_model->where([])->field('a,b,c')->select();
-		dump($list);
-		dump($user_model);
-		dump($user_model->getLastSql());
-
+//		$user_model = new UserModel();
+////		dumpc($user_model);
+//		$list = $user_model->where('uid>1')->field('uid,uname,unick')->group('status')->order('uid DESC')->select();
+////		$list = $user_model->where([])->field('a,b,c')->select();
+//		dumpc($list);
+//		dumpc($user_model);
+//		dumpc($user_model->getLastSql());
 //
+////
 		$model = new Model();
-		$list = $model->table('User')->where('uid>1')->field('uid,uname,unick')->group('status')->order('uid DESC')->comment('测试注释')->select();
-		dump($list);
-		dump($model);
-		dump($model->getLastSql());
+		$where = [
+			"AND" => [
+				"OR" => [
+					"uid[><]" => [1, 3],
+					"uid[=]" => 5,
+				],
+				"uname[~]" => "foo"
+			]
+		];
+		$list = $model
+			->table('User')
+			->where($where)
+			->field('uid,uname,unick')
+//			->group('status')
+			->order('uid DESC')
+			->comment('测试注释')
+			->select();
+		dumpc($list);
+//		dumpc($model);
+		dumpc($model->getLastSql());
 	}
 
 	public function test()
