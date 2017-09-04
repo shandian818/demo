@@ -29,14 +29,9 @@ class Index extends Ctrl
 //			'password' => 'root',
 //			'charset' => 'utf8'
 //		]);
-//		$a = $database->select("like_user", ['uid', 'uname'], [
-//			"OR" => [
-//				"AND" => [
-////					"uid[!]" => [1, 2, 3],
-//					"uid[!]" => [1, 2, 3],
-//				],
-//				"uname" => "foo"
-//			]
+//		$a = $database->insert("like_user",[
+//			'uname'=>'new1',
+//			'unick'=>'new11',
 //		]);
 //		dumpc($a);
 //		dumpc($database->last());exit;
@@ -51,39 +46,45 @@ class Index extends Ctrl
 //
 ////
 		$model = new Model();
-		$where = [
-			"AND" => [
-				"OR" => [
-					"uid[><]" => [1, 3],
-					"uid[=]" => 5,
-				],
-				"uname[~]" => "foo"
-			]
+//		$where = [
+//			"AND" => [
+//				"OR" => [
+//					"uid[<>]" => [1, 3],
+//					"uid[=]" => 5,
+//				],
+//				"uname[~]" => "foo"
+//			]
+//		];
+//		$list = $model
+//			->table('User')
+//			->where($where)
+//			->field('uid,uname,unick')
+////			->group('status')
+//			->order('uid DESC')
+//			->comment('测试注释')
+//			->select();
+//		dumpc($list);
+////		dumpc($model);
+//		dumpc($model->getLastSql());
+		$c = [
+			'uname' => 'aaanew12222222222',
+			'unick' => 'aaanew11',
 		];
-		$list = $model
-			->table('User')
-			->where($where)
-			->field('uid,uname,unick')
-//			->group('status')
-			->order('uid DESC')
-			->comment('测试注释')
-			->select();
-		dumpc($list);
-//		dumpc($model);
-		dumpc($model->getLastSql());
+		$s = $model->table('User')->addAll($c);
+		dumpc($s);
 	}
 
 	public function test()
 	{
 		$this->assign('name', '名字');
 		$this->assign('info', ['name' => '替换', 'user' => ['name' => 'info的user的name']]);
-		$this->Render('testview');
+		$this->render('testview');
 	}
 
 	public function testb()
 	{
 		$this->assign('name', '名字aaaaa');
 		$this->assign('info', ['name' => '替换aaaaaa', 'user' => ['name' => 'info的user的name']]);
-		$this->Render('testview');
+		$this->render('testview');
 	}
 }
