@@ -142,8 +142,7 @@ class Model
 	public function select()
 	{
 		$sql = $this->_parseAll();
-		$sth = $this->_db->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-		$sth->execute(array(':calories' => 150, ':colour' => 'red'));
+		$sth = $this->execu($sql);
 		$result = $sth->fetchAll();
 		return $result;
 	}
@@ -184,6 +183,20 @@ class Model
 		return $where_sql;
 	}
 
+	/**
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $sql
+	 * @return mixed
+	 */
+	public function execu($sql)
+	{
+		$sth = $this->_db->prepare($sql);
+		$sth->execute();
+		return $sth;
+	}
+
 	private function _addQuote($value)
 	{
 
@@ -210,9 +223,6 @@ class Model
 			if (preg_match("/^(AND|OR)(\s+#.*)?$/i", $key, $relation_match) && $type === 'array') {
 				$where_array[] = '(' . $this->_getWhereFieldString($value, ' ' . $relation_match[1]) . ')';
 			} else {
-//				if (is_int($key) && preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>|\>\=|\<|\<\=|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)) {
-//					$wheres[] = $this->columnQuote($match[1]) . ' ' . $match['operator'] . ' ' . $this->columnQuote($match[3]);
-//				} else {
 				preg_match('/(#?)([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
 				$field = $match[2];
 				if (isset($match['operator'])) {
@@ -237,7 +247,6 @@ class Model
 								break;
 						}
 					}
-
 					if ($operator === '<>' || $operator === '><') {
 						if ($type === 'array') {
 							if ($operator === '><') {
@@ -248,12 +257,10 @@ class Model
 
 						}
 					}
-
 					if ($operator === '~' || $operator === '!~') {
 						if ($type !== 'array') {
 							$value = [$value];
 						}
-
 						$connector = ' OR ';
 						$stack = array_values($value);
 
@@ -263,31 +270,24 @@ class Model
 								$value = $stack[0];
 							}
 						}
-
 						$like_array = [];
-
 						foreach ($value as $index => $item) {
 							$item = strval($item);
 
 							if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item)) {
 								$item = "'%" . $item . "%'";
 							}
-
 							$like_array[] = $field . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $item;
 						}
-
 						$where_array[] = '(' . implode($connector, $like_array) . ')';
 					}
-
 					if (in_array($operator, ['>', '>=', '<', '<='])) {
 						$condition = $field . ' ' . $operator . ' ';
-
 						if (is_numeric($value)) {
 							$condition .= $value;
 						} else {
 							$condition .= $value;
 						}
-
 						$where_array[] = $condition;
 					}
 				} else {
@@ -315,8 +315,7 @@ class Model
 		return $where_sql;
 	}
 
-	private
-	function _parseField()
+	private function _parseField()
 	{
 		$field_sql = '';
 		if (!empty($this->_data_array['field'])) {
@@ -329,8 +328,7 @@ class Model
 		return $field_sql;
 	}
 
-	private
-	function _parseOrder()
+	private function _parseOrder()
 	{
 		$field_sql = '';
 		if (!empty($this->_data_array['order'])) {
@@ -339,8 +337,7 @@ class Model
 		return $field_sql;
 	}
 
-	private
-	function _parseTable()
+	private function _parseTable()
 	{
 		if (!empty($this->real_tabale_name)) {
 			$real_tabale_name = $this->real_tabale_name;
@@ -349,35 +346,34 @@ class Model
 		} else {
 			$real_tabale_name = null;
 		}
+		$this->real_tabale_name = $real_tabale_name;
 		return $real_tabale_name;
 	}
 
-	public
-	function getLastSql()
+	public function getLastSql()
 	{
 
 		return $this->_sql;
 	}
 
-	public
-	function __call($method, $args)
+	public function __call($method, $args)
 	{
 		$methods = ['table', 'where', 'order', 'comment', 'having', 'group', 'field'];
 		if (in_array(strtolower($method), $methods)) {
 			$this->_data_array[strtolower($method)] = $args[0];
 			return $this;
-		} else if (in_array(strtolower($method), ['count', 'sum', 'min', 'max', 'avg'])) {
-			// 统计查询的实现
-			$field = isset($args[0]) ? $args[0] : '*';
-			$method_sql = strtoupper($method) . '(' . $field . ') AS like_' . $method;
-			$this->_sql_array['field'] = $method_sql . $this->_sql_array[strtolower($method)];
+//			//暂时先不做了
+//		} else if (in_array(strtolower($method), ['count', 'sum', 'min', 'max', 'avg'])) {
+//			// 统计查询的实现
+//			$field = isset($args[0]) ? $args[0] : '*';
+//			$method_sql = strtoupper($method) . '(' . $field . ') AS like_' . $method;
+//			$this->_sql_array['field'] = $method_sql . $this->_sql_array[strtolower($method)];
 		} else {
 			throw new \Exception('调用方法不存在');//待完善
 		}
 	}
 
-	private
-	function _parseJoin()
+	private function _parseJoin()
 	{
 		$join_sql = '';
 		if (!empty($this->_data_array['join'])) {
@@ -386,8 +382,7 @@ class Model
 		return $join_sql;
 	}
 
-	private
-	function _parseLimit()
+	private function _parseLimit()
 	{
 		$limit_sql = '';
 		if (!empty($this->_data_array['limit'])) {
@@ -396,8 +391,7 @@ class Model
 		return $limit_sql;
 	}
 
-	private
-	function _parseGroup()
+	private function _parseGroup()
 	{
 		$group_sql = '';
 		if (!empty($this->_data_array['group'])) {
@@ -406,8 +400,7 @@ class Model
 		return $group_sql;
 	}
 
-	private
-	function _parseHaving()
+	private function _parseHaving()
 	{
 		$having_sql = '';
 		if (!empty($this->_data_array['having'])) {
@@ -416,18 +409,16 @@ class Model
 		return $having_sql;
 	}
 
-	private
-	function _parseComment()
+	private function _parseComment()
 	{
 		$comment_sql = '';
 		if (!empty($this->_data_array['comment'])) {
-			$comment_sql .= '/*   ' . $this->_data_array['comment'] . '   */';
+			$comment_sql .= '/* ' . $this->_data_array['comment'] . ' */';
 		}
 		return $comment_sql;
 	}
 
-	private
-	function _parseAll()
+	private function _parseAll()
 	{
 		$selectSql = 'SELECT %FIELD% FROM %TABLE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %COMMENT%';
 		$sql = str_replace(
@@ -455,5 +446,27 @@ class Model
 			], $selectSql);
 		$this->_sql = $sql;
 		return $sql;
+	}
+
+	public function addAll($datas = [])
+	{
+		if (!isset($datas[0])) {
+			$datas = [$datas];
+		}
+		$fields = [];
+		$values = [];
+		foreach ($datas as $data) {
+			$line_values = [];
+			foreach ($data as $key => $value) {
+				if (!in_array($key, $fields)) {
+					$fields[] = $key;
+					$line_values[] = $this->_addQuote($value);
+				}
+			}
+			$values[] = ' (' . implode(', ', $line_values) . ')';
+		}
+		$this->_parseTable();
+		$sql = 'INSERT INTO ' . $this->real_tabale_name . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $values);
+		$result = $this->execu($sql);
 	}
 }
