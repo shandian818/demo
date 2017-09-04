@@ -67,10 +67,18 @@ class Index extends Ctrl
 ////		dumpc($model);
 //		dumpc($model->getLastSql());
 		$c = [
-			'uname' => 'aaanew12222222222',
-			'unick' => 'aaanew11',
+			'uname' => '1',
+			'unick' => '2',
 		];
-		$s = $model->table('User')->addAll($c);
+		$insert_data = [];
+		for ($i=0;$i<10;$i++){
+			$insert_data[]=[
+				'uname'=>'aaa'.$i,
+				'unick'=>'bbb'.$i,
+			];
+		}
+//		$s = $model->table('User')->addAll($insert_data);
+		$s = $model->table('User')->where(['uid[<]'=>3])->save();
 		dumpc($s);
 	}
 
