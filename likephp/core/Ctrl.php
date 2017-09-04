@@ -50,7 +50,7 @@ class Ctrl
 		$_view->assign($name, $value);
 	}
 
-	public function Render($tpl_name = null)
+	public function render($tpl_name = null)
 	{
 		$_view = $this->_getViewObj();
 		$content = $_view->make($tpl_name);
