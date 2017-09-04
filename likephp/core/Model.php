@@ -453,9 +453,9 @@ class Model
 		if (!isset($datas[0])) {
 			$datas = [$datas];
 		}
-		$fields = [];
 		$values = [];
 		foreach ($datas as $data) {
+			$fields = [];
 			$line_values = [];
 			foreach ($data as $key => $value) {
 				if (!in_array($key, $fields)) {
@@ -468,5 +468,22 @@ class Model
 		$this->_parseTable();
 		$sql = 'INSERT INTO ' . $this->real_tabale_name . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $values);
 		$result = $this->execu($sql);
+		return $result;
+	}
+
+	public function save($data = [])
+	{
+		$update_values = [];
+		foreach ($data as $key => $value) {
+			$fields = [];
+			if (!in_array($key, $fields)) {
+				$update_values[] = $key . '=' . $this->_addQuote($value);
+			}
+		}
+		$this->_parseTable();
+		$where_sql = $this->_parseWhere();
+		$sql = 'UPDATE ' . $this->real_tabale_name . ' SET ' . implode(', ', $update_values) . $where_sql;
+		$result = $this->execu($sql);
+		return $result;
 	}
 }
