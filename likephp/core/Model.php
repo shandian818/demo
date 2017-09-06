@@ -342,7 +342,7 @@ class Model
 		if (!empty($this->real_tabale_name)) {
 			$real_tabale_name = $this->real_tabale_name;
 		} else if (!empty($this->_data_array['table'])) {
-			$real_tabale_name = (!empty($this->db_name) ? $this->db_name . '.' : '') . $this->_tabale_prefix . strtolower($this->_data_array['table']);
+			$real_tabale_name = (!empty($this->db_name) ? $this->db_name . '.' : '') . $this->_tabale_prefix . caps_to_line($this->_data_array['table']);
 		} else {
 			$real_tabale_name = null;
 		}
