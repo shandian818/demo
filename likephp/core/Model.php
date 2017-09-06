@@ -155,12 +155,12 @@ class Model
 			if (is_array($this->_data_array['where'])) {
 				$where = $this->_data_array['where'];
 				$where_keys = array_keys($where);
-				$single_condition = array_diff_key($where, array_flip(
+				$single_condition = array_diff_key(array_change_key_case($where, CASE_UPPER), array_flip(
 					['AND', 'OR']
 				));
 
 				if (!empty($single_condition)) {
-					$condition = $this->_getWhereFieldString($single_condition, ' AND');
+					$condition = $this->_getWhereFieldString($where, ' AND');
 
 					if ($condition !== '') {
 						$where_sql .= $condition;
@@ -474,6 +474,9 @@ class Model
 	public function save($data = [])
 	{
 		$update_values = [];
+		if (empty($data)) {
+			throw new \Exception('update数据不能是空');
+		}
 		foreach ($data as $key => $value) {
 			$fields = [];
 			if (!in_array($key, $fields)) {
@@ -482,7 +485,22 @@ class Model
 		}
 		$this->_parseTable();
 		$where_sql = $this->_parseWhere();
+		if (empty($where_sql)) {
+			throw new \Exception('where条件不能是空');
+		}
 		$sql = 'UPDATE ' . $this->real_tabale_name . ' SET ' . implode(', ', $update_values) . $where_sql;
+		$result = $this->execu($sql);
+		return $result;
+	}
+
+	public function delete()
+	{
+		$this->_parseTable();
+		$where_sql = $this->_parseWhere();
+		if (empty($where_sql)) {
+			throw new \Exception('where条件不能是空');
+		}
+		$sql = 'DELETE FROM ' . $this->real_tabale_name . $where_sql;
 		$result = $this->execu($sql);
 		return $result;
 	}
