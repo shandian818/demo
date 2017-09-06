@@ -32,3 +32,23 @@ function dumpc($data)
 {
 	\tools\Dump::dumpToConsole($data);
 }
+
+/**
+ * 大写字母转分隔符（下划线）+小写字母
+ * 两边为分隔符（下划线）时，自动过滤掉
+ * 例如: AbcDef => abc_def
+ * User: jiangxijun
+ * Email: jiang818@qq.com
+ * Qq: 263088049
+ * @param $string
+ * @param string $fen 分隔符（默认为下划线）
+ * @return mixed|string
+ */
+function caps_to_line($string, $fen = '_')
+{
+	$string = preg_replace_callback('/([A-Z]{1})/', function ($matches) use ($fen) {
+		return $fen . strtolower($matches[0]);
+	}, $string);
+	$string = trim($string, $fen);
+	return $string;
+}
