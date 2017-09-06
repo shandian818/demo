@@ -41,14 +41,14 @@ function dumpc($data)
  * Email: jiang818@qq.com
  * Qq: 263088049
  * @param $string
- * @param string $fen 分隔符（默认为下划线）
+ * @param string $line 分隔符（默认为下划线）
  * @return mixed|string
  */
-function caps_to_line($string, $fen = '_')
+function caps_to_line($string, $line = '_')
 {
-	$string = preg_replace_callback('/([A-Z]{1})/', function ($matches) use ($fen) {
-		return $fen . strtolower($matches[0]);
+	$string = preg_replace_callback('/([A-Z]{1})/', function ($matches) use ($line) {
+		return $line . strtolower($matches[0]);
 	}, $string);
-	$string = trim($string, $fen);
+	$string = trim($string, $line);
 	return $string;
 }
