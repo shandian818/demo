@@ -365,9 +365,7 @@ class Model
 //			//暂时先不做了
 //		} else if (in_array(strtolower($method), ['count', 'sum', 'min', 'max', 'avg'])) {
 //			// 统计查询的实现
-//			$field = isset($args[0]) ? $args[0] : '*';
-//			$method_sql = strtoupper($method) . '(' . $field . ') AS like_' . $method;
-//			$this->_sql_array['field'] = $method_sql . $this->_sql_array[strtolower($method)];
+
 		} else {
 			throw new \Exception('调用方法不存在');//待完善
 		}
