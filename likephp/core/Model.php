@@ -117,7 +117,7 @@ class Model
 		$dbuser = $db_config['dbuser'] ?: '';
 		$dbpass = $db_config['dbpass'] ?: '';
 		$dbname = $db_config['dbname'] ?: '';
-		$this->_tabale_prefix = $db_config['dbpre'] ?: '';
+		$this->_tabale_prefix = isset($db_config['dbpre']) ? $db_config['dbpre'] : '';
 		$this->db_name = $dbname;
 		$connection_id = md5($dbhost . $dbport . $dbuser . $dbpass . $dbname);
 		if (isset($this->_db_objs[$connection_id])) {
@@ -145,6 +145,14 @@ class Model
 		$sth = $this->execu($sql);
 		$result = $sth->fetchAll();
 		return $result;
+	}
+
+	public function find()
+	{
+		$sql = $this->_parseAll();
+		$sth = $this->execu($sql);
+		$result = $sth->fetchAll();
+		return isset($result[0]) ? $result[0] : [];
 	}
 
 	private function _parseWhere()
@@ -317,7 +325,7 @@ class Model
 
 	private function _parseField()
 	{
-		$field_sql = '';
+		$field_sql = '*';
 		if (!empty($this->_data_array['field'])) {
 			if (is_array($this->_data_array['field'])) {
 				$field_sql .= implode(', ', $this->_data_array['field']);
