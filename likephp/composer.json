@@ -9,7 +9,6 @@
   ],
   "require": {
     "php": ">= 5.3.0",
-    "catfan/Medoo": "*",
-    "shandian818/tools": "*"
+    "shandian818/tools": "1.6"
   }
 }

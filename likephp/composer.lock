@@ -4,20 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "aac0bc14dfc4637f04514c0bb3ff4c4a",
+    "hash": "2a728bc8b4b944cee19526942b848345",
+    "content-hash": "4e4e4baf5caa7d8def328ee788af0215",
     "packages": [
         {
             "name": "shandian818/tools",
-            "version": "1.3",
+            "version": "1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/shandian818/tools.git",
-                "reference": "4d632c24a5a6dbe806f9834c62fccb42f9c2d7b2"
+                "reference": "3b69ee6d4edd954a222b53d6292788720d0e2eee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/shandian818/tools/zipball/4d632c24a5a6dbe806f9834c62fccb42f9c2d7b2",
-                "reference": "4d632c24a5a6dbe806f9834c62fccb42f9c2d7b2",
+                "url": "https://api.github.com/repos/shandian818/tools/zipball/3b69ee6d4edd954a222b53d6292788720d0e2eee",
+                "reference": "3b69ee6d4edd954a222b53d6292788720d0e2eee",
                 "shasum": ""
             },
             "require": {
@@ -49,7 +50,7 @@
                 "tools",
                 "闪电"
             ],
-            "time": "2017-05-12T09:50:18+00:00"
+            "time": "2017-09-15 03:35:38"
         }
     ],
     "packages-dev": [],

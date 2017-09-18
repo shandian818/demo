@@ -19,13 +19,12 @@ class Dump
 	 * User: jiangxijun
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
-	 * @param $data
+	 * @param $data 打印的数据
+	 * @param $depth int 打印文件深度
 	 */
-	static public function dumpToHtml($data)
+	static public function dumpToHtml($data, $depth = 1)
 	{
-		$debug = debug_backtrace();
-		unset($debug[1]['args']);
-		$info = $debug[1]['file'] . ":" . $debug[1]['line'];
+		$info = self::_getDebugFileInfo($depth);
 		$string = "\n";
 		$string .= "<div>\n";
 		$string .= "	<p style=\"color: red;margin: 0\">" . $info . "</p>\n";
@@ -41,13 +40,12 @@ class Dump
 	 * User: jiangxijun
 	 * Email: jiang818@qq.com
 	 * Qq: 263088049
-	 * @param $data
+	 * @param $data 打印的数据
+	 * @param $depth int 打印文件深度
 	 */
-	static public function dumpToConsole($data)
+	static public function dumpToConsole($data, $depth = 1)
 	{
-		$debug = debug_backtrace();
-		unset($debug[1]['args']);
-		$info = $debug[1]['file'] . ":" . $debug[1]['line'];
+		$info = self::_getDebugFileInfo($depth);
 		$string = "\n";
 		$string .= "<script>\n";
 		$string .= "//调试\n";
@@ -142,5 +140,24 @@ class Dump
 		}
 
 		return $string;
+	}
+
+	/**
+	 * 按深度获取debug文件信息
+	 * User: jiangxijun
+	 * Email: jiang818@qq.com
+	 * Qq: 263088049
+	 * @param $depth
+	 * @return string
+	 */
+	static private function _getDebugFileInfo($depth)
+	{
+		$debug = debug_backtrace();
+		while (!isset($debug[$depth])) {
+			$depth--;
+		}
+		unset($debug[$depth]['args']);
+		$info = $debug[$depth]['file'] . ":" . $debug[$depth]['line'];
+		return $info;
 	}
 }
