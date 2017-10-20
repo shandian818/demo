@@ -18,7 +18,7 @@
  */
 function dump($data)
 {
-	\tools\Dump::dumpToHtml($data);
+	\tools\Dump::dumpToHtml($data, 2);
 }
 
 /**
@@ -30,7 +30,7 @@ function dump($data)
  */
 function dumpc($data)
 {
-	\tools\Dump::dumpToConsole($data);
+	\tools\Dump::dumpToConsole($data, 2);
 }
 
 /**
