@@ -13,7 +13,12 @@ namespace apps\index\model;
 
 use likephp\core\Model;
 
-class UserModel extends Model
+class MenuModel extends Model
 {
-
+	public function getOne($id)
+	{
+		$result = $this->where(['id' => $id])->find();
+		dump($result);
+		return $result;
+	}
 }
