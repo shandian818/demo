@@ -57,4 +57,33 @@ class Ctrl
 		echo $content;
 	}
 
+	public function api_success($data = null)
+	{
+		$return = [
+			'status' => true,
+			'msg' => '成功'
+		];
+		if (!is_null($data)) {
+			$return['result'] = $data;
+		}
+		$this->json($return);
+	}
+
+	public function api_error()
+	{
+		$return = [
+			'status' => false,
+			'msg' => '失败',
+		];
+		$this->json($return);
+	}
+
+
+	public function json($data)
+	{
+		header('content-type:application/json;charset=utf8');
+		$json = json_encode($data, JSON_UNESCAPED_UNICODE);
+		echo $json;
+	}
+
 }
