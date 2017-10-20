@@ -197,11 +197,19 @@ class Model
 	 * Qq: 263088049
 	 * @param $sql
 	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function execu($sql)
 	{
-		$sth = $this->_db->prepare($sql);
-		$sth->execute();
+		if (empty($this->real_tabale_name)) {
+			throw new \Exception('表名不能为空');
+		}
+		try {
+			$sth = $this->_db->prepare($sql);
+			$sth->execute();
+		} catch (\PDOException $e) {
+			throw new \Exception($e->getMessage() . "\r\n<br/>相关SQL=" . $sql);
+		}
 		return $sth;
 	}
 
@@ -260,9 +268,7 @@ class Model
 							if ($operator === '><') {
 								$field .= ' NOT';
 							}
-
 							$where_array[] = '(' . $field . ' BETWEEN ' . $value[0] . ' AND ' . $value[1] . ')';
-
 						}
 					}
 					if ($operator === '~' || $operator === '!~') {
